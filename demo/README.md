@@ -56,7 +56,7 @@ Node 20 이상. 설치할 패키지는 없다.
 #    GEMINI_API_KEY=...   (필수)
 #    NEWSAPI_AI_KEY=...   (소식을 새로 준비할 때만. newsapi.ai)
 # 2. 띄우기
-node demo/server.mjs          # http://localhost:4175
+node demo/local.mjs          # http://localhost:4175
 # 3. (선택) 오늘 뉴스로 소식을 새로 준비
 node demo/build-pool.mjs
 ```

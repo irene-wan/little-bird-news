@@ -1,4 +1,4 @@
-// 로컬에서 데모를 띄운다: node demo/server.mjs  (같은 와이파이의 폰에서 보려면 --lan)
+// 로컬에서 데모를 띄운다: node demo/local.mjs  (같은 와이파이의 폰에서 보려면 --lan)
 // 배포(Vercel)에서는 public/ 과 api/ 를 그대로 쓰고 이 파일은 쓰지 않는다.
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
