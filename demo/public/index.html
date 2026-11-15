@@ -305,9 +305,10 @@ input[type="range"] { width: 100%; height: 44px; margin: 0; accent-color: var(--
     window.scrollTo(0, 0);
   }
   var SAMPLES = [
+    { label: "채용 담당자 박서윤", job: "IT 기업 인사팀에서 신입·경력 채용을 맡은 8년 차예요. 여섯 살 아이를 키우고 있어요", interests: "채용 시장, 청년 고용, AI 역량 평가, 육아, 내 집 마련", weak: "반도체, AI 기술 용어", avoid: "연예인 소식" },
+    { label: "교육 담당자 이준호", job: "기업 교육팀에서 AI 인재 양성 과정을 기획하고 운영하는 11년 차예요", interests: "AI 교육, 생성형 AI 활용, 대학 교육, 러닝, 연금과 노후 준비", weak: "금리, 환율 같은 경제 흐름", avoid: "정치 공방" },
     { label: "취업 준비 중인 대학생", job: "대학교 4학년이고 마케팅 직무로 취업을 준비하고 있어요", interests: "채용, 자취, 생활비 아끼기", weak: "금리, 환율 같은 경제 용어", avoid: "연예인 소식" },
-    { label: "3년 차 개발자", job: "스타트업에서 일하는 3년 차 백엔드 개발자예요", interests: "AI, 반도체, 주식 투자, 전세", weak: "부동산 제도", avoid: "정치 공방" },
-    { label: "간호사", job: "대학병원에서 교대 근무를 하는 간호사예요", interests: "건강, 수면, 여행, 저축", weak: "AI 기술", avoid: "" }
+    { label: "3년 차 개발자", job: "스타트업에서 일하는 3년 차 백엔드 개발자예요", interests: "AI, 반도체, 주식 투자, 전세", weak: "부동산 제도", avoid: "정치 공방" }
   ];
   var FIELDS = [
     ["job", "지금 하는 일이나 상황", "한 줄이면 돼요", "예: 대학교 4학년이고 취업을 준비하고 있어요"],
@@ -351,17 +352,28 @@ input[type="range"] { width: 100%; height: 44px; margin: 0; accent-color: var(--
     at = "wait";
     var stage = el("section", "stage"), slot = el("div", "slot"); slot.dataset.size = "lg";
     var steps = el("ol", "steps"), names = ["프로필 읽는 중", "오늘의 소식 살펴보는 중", "세 편 고르는 중", "가져온 이유 적는 중"];
-    names.forEach(function (n) { steps.append(el("li", "", n)); });
-    stage.append(slot, el("h1", "", "소식을 물어 오는 중이에요"), el("p", "", "10초쯤 걸려요. 새를 눌러 보세요."), steps);
+    var FRESH = ["오늘 뉴스 모으는 중", "기사에서 사실 확인하는 중", "쉽게 풀어 쓰는 중", "직접 해 보는 설명 만드는 중", "마지막 점검 중"];
+    var h1 = el("h1", "", "소식을 물어 오는 중이에요"), sub = el("p", "", "잠깐이면 돼요. 새를 눌러 보세요.");
+    function setSteps(list, every) {
+      names = list; steps.replaceChildren(); names.forEach(function (x) { steps.append(el("li", "", x)); });
+      n = 0; mark(); clearInterval(waitTimer); waitTimer = setInterval(function () { if (n < names.length - 1) { n++; mark(); } }, every);
+    }
+    stage.append(slot, h1, sub, steps);
     show([stage], "고르는 중");
     onBird = function () { Bird.setQuiet(false); Bird.place(slot); Bird.react(); };
     onBird();
     var n = 0, mark = function () { Array.prototype.forEach.call(steps.children, function (li, i) { li.dataset.done = i < n ? "1" : "0"; li.dataset.on = i === n ? "1" : "0"; }); };
-    mark(); waitTimer = setInterval(function () { if (n < names.length - 1) { n++; mark(); } }, 2500);
-    fetch("api/edition", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(profile) })
+    setSteps(names, 2500);
+    // 오늘 소식이 아직 준비되지 않았으면 서버가 지금 최신 뉴스로 준비한다. 금방 답이 오지 않으면 그 사실을 알린다
+    var slow = setTimeout(function () { if (at !== "wait") return; h1.textContent = "오늘 첫 손님이에요"; sub.textContent = "방금 나온 뉴스로 소식을 새로 준비하고 있어요. 1~2분쯤 걸려요."; setSteps(FRESH, 20000); }, 3000);
+    fetch("api/prepare", { method: "POST" }).catch(function () {}).then(function () {
+      clearTimeout(slow); if (at !== "wait") throw new Error("취소");
+      h1.textContent = "소식을 물어 오는 중이에요"; sub.textContent = "잠깐이면 돼요. 새를 눌러 보세요."; setSteps(["프로필 읽는 중", "오늘의 소식 살펴보는 중", "세 편 고르는 중", "가져온 이유 적는 중"], 2500);
+      return fetch("api/edition", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(profile) });
+    })
       .then(function (res) { return res.json().then(function (j) { if (!res.ok) throw new Error(j.error || "문제가 생겼어요."); return j; }); })
       .then(function (j) { if (at !== "wait") return; edition = j; read = {}; store.set("edition", j); arrival(); })
-      .catch(function (e) { if (at === "wait") intro(/Failed|NetworkError|JSON/.test(e.message) ? "서버에 닿지 못했어요. 잠시 뒤에 다시 해 주세요." : e.message); });
+      .catch(function (e) { clearTimeout(slow); if (at === "wait") intro(/Failed|NetworkError|JSON/.test(e.message) ? "서버에 닿지 못했어요. 잠시 뒤에 다시 해 주세요." : e.message); });
   }
 
   function arrival() {

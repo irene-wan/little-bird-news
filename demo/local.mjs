@@ -5,10 +5,16 @@ import { readFile } from "node:fs/promises";
 import { join, extname, normalize } from "node:path";
 import { DEMO } from "./lib/env.mjs";
 const { handle } = await import("./api/edition.js");
+const prepare = await import("./api/prepare.js");
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8", ".wasm": "application/wasm", ".riv": "application/octet-stream", ".svg": "image/svg+xml" };
 const port = Number(process.env.PORT || 4175), host = process.argv.includes("--lan") ? "0.0.0.0" : "127.0.0.1";
 createServer(async (req, res) => {
   const url = new URL(req.url, "http://x");
+  if (url.pathname === "/api/prepare" && req.method === "POST") {
+    const out = await prepare.handle();
+    res.writeHead(out.status, { "content-type": TYPES[".json"], "cache-control": "no-store" }).end(JSON.stringify(out.json));
+    return;
+  }
   if (url.pathname === "/api/edition") {
     if (req.method !== "POST") { res.writeHead(405).end(); return; }
     let raw = ""; for await (const chunk of req) { raw += chunk; if (raw.length > 8000) break; }
