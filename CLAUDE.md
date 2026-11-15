@@ -10,7 +10,7 @@
 - Project Bootstrap은 완료되었다.
 - MVP PRD는 승인되었다 (`docs/product/prd/personal-mvp.md`).
 - Technical Discovery와 1차 Technical Spike는 2026-11-15에 창업자 지시로 마감했다 (D-046). **이어받을 때는 `docs/architecture/technical-discovery.md` 0.3절부터 읽는다** (어디까지 했는지, 프로토타입을 다시 돌리는 법, 다음에 할 일).
-- 다음 단계는 Technical Design 초안 작성이다 (`docs/architecture/technical-design.md`, 아직 없음).
+- Technical Design 초안(Draft v0.1)이 있다 (`docs/architecture/technical-design.md`). 창업자가 방향을 승인한 결정은 Decision Log 2.5절에 있고, 문서 자체는 아직 Draft다. 포트폴리오용 데모는 `demo/`에 있다 (D-063).
 - 기술 스택과 아키텍처는 **아직 확정되지 않았다** (Product Brief 13, Decision Log 3). 엔지니어가 고른 구조는 Proposed로 기록되어 있다 (D-047~D-051).
 - 소식의 목표 수준은 창업자가 준 시안이다: `docs/research/references/target-edition-mockup.html`. 저비용의 경량 모델로 그 수준을 내는 것이 목표다 (D-045).
 - 창업자는 엔지니어가 아니다. 구조와 기술은 엔지니어(AI)가 골라 진행하고 쉬운 말로 알린다 (D-043). 정책과 불확실성 정리보다 핵심 가치를 담은 동작하는 결과물이 먼저다 (D-040).
@@ -33,7 +33,7 @@ Product Principles v1.0 「2. 비협상 가치」 원문이다.
 | Product Brief | `docs/product/product-brief.md` | v1.0 · Approved | 제품 정의, MVP 범위(CORE A–F), 완료 정의, Open Decisions |
 | Product Principles | `docs/product/product-principles.md` | v1.1 · Approved | 비협상 가치, 제품 원칙 P-01–P-17, 변경 관리 원칙 |
 | Assumption Register | `docs/research/assumption-register.md` | v1.0 · Approved | 가설 H-01–H-16, Feasibility Gate F-01–F-07, 검증 프로토콜 |
-| Decision Log | `docs/architecture/decision-log.md` | v1.3 · Approved (D-040–D-051의 문구는 창업자 확인 전) | 결정 D-000–D-051과 상태, 승인·변경 규칙 |
+| Decision Log | `docs/architecture/decision-log.md` | v1.4 · Approved (D-040–D-063의 문구는 창업자 확인 전) | 결정 D-000–D-063과 상태, 승인·변경 규칙 |
 | MVP PRD | `docs/product/prd/personal-mvp.md` | v1.1 · Approved | 최초 개인용 MVP의 사용자 흐름, 기능·비기능 요구사항, 세 가치의 인수 조건, 필수·제외 경계, 기술 설계 미결정 사항 |
 
 ### 문서 우선순위
@@ -118,7 +118,7 @@ Product Principles v1.0 「2. 비협상 가치」 원문이다.
 | Technical Spike 코드 | `spikes/<주제>/` | 제품 코드와 분리된 실험 코드. 제품 코드에서 가져다 쓰지 않는다. |
 | 참고 자료 | `docs/research/references/` | 창업자가 준 목표 시안 같은 참고물. 실제 프로필에서 나온 문장은 가리고 넣는다. 원본은 `private/references/`에 둔다. |
 | Technical Design | `docs/architecture/technical-design.md` | 전체 기술 설계. 주제별 상세 설계는 `docs/architecture/<주제>.md`. |
-| 결정 기록 | `docs/architecture/decision-log.md` | 결정은 이 문서 한 곳에만 등록한다. ID는 마지막으로 등록된 번호 다음부터 이어 쓴다 (2026-11-15 기준 마지막은 D-051). |
+| 결정 기록 | `docs/architecture/decision-log.md` | 결정은 이 문서 한 곳에만 등록한다. ID는 마지막으로 등록된 번호 다음부터 이어 쓴다 (2026-11-15 기준 마지막은 D-063). |
 | 기능별 Spec / Plan / Tasks | `specs/<NNN>-<기능명>/` | 아래 참조. |
 
 ### specs/ 규칙
