@@ -1,0 +1,515 @@
+<title>새 프로토타입 시험</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700&display=swap">
+<style>
+/* S6 Spike — Rive 새 프로토타입의 시험용 읽기 화면. 제품 코드가 아니다. 내용은 모두 가짜다.
+   배치: 한 줄 기둥(최대 640px). 위에 붙는 얇은 띠에 진행 위치와 새의 자리. 색과 글꼴은 목표 시안의 값을 따른다. */
+:root {
+  --bg: #f8f7f2; --surface: #fffefa; --ink: #1b2924; --muted: #657069; --line: #e6e8e0; --soft: #eff2eb;
+  --accent: #f16d4c; --accent-text: #9d3b26; --navy: #1f3b51; --on-navy: #f8f7f2;
+  --topic: #2c7d64; --topic-soft: #eaf5ee;
+  --font-display: "Noto Serif KR", "Nanum Myeongjo", Georgia, serif;
+  --font-body: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111a17; --surface: #1c2722; --ink: #eff5ee; --muted: #b0bcb5; --line: #35443b; --soft: #28382f;
+  --accent: #ff9374; --accent-text: #ffc1ab; --navy: #24394a; --on-navy: #eff5ee;
+  --topic: #8ddcb6; --topic-soft: #203e33; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111a17; --surface: #1c2722; --ink: #eff5ee; --muted: #b0bcb5; --line: #35443b; --soft: #28382f;
+  --accent: #ff9374; --accent-text: #ffc1ab; --navy: #24394a; --on-navy: #eff5ee;
+  --topic: #8ddcb6; --topic-soft: #203e33; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { overflow-x: clip; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.65; word-break: keep-all; overflow-wrap: anywhere; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
+button:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+h1, h2, h3, p { margin: 0; }
+h1, h2 { text-wrap: balance; }
+
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--bg); border-bottom: 1px solid var(--line); }
+.bar-in, .wrap { max-width: 640px; margin-inline: auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.bar-in { min-height: 56px; display: flex; align-items: center; gap: 12px; }
+.bar-title { flex: 1; min-width: 0; font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bar-title strong { display: block; color: var(--ink); font-size: 0.95rem; }
+.bar-btn { min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); font-size: 0.8rem; font-weight: 700; }
+.wrap { padding-block: 24px 56px; display: flex; flex-direction: column; gap: 24px; }
+.fake { align-self: flex-start; font-size: 0.72rem; font-weight: 700; color: var(--accent-text); border: 1px dashed var(--accent); border-radius: 999px; padding: 2px 10px; }
+
+/* 새의 자리 */
+.slot { display: grid; place-items: center; flex: none; }
+.slot[data-size="lg"] { width: 168px; height: 168px; }
+.slot[data-size="md"] { width: 88px; height: 88px; }
+.slot[data-size="sm"] { width: 44px; height: 44px; }
+.bird-btn { width: 100%; height: 100%; padding: 0; border: 0; background: none; border-radius: 50%; overflow: hidden; display: grid; place-items: center; -webkit-tap-highlight-color: transparent; }
+.bird-btn { position: relative; }
+.bird-btn canvas { position: absolute; display: block; }
+.bird-btn svg { width: 100%; height: 100%; display: block; }
+.bird-btn svg { color: var(--accent); }
+@keyframes fly-in { from { transform: translate(38vw, -28vh) scale(0.45) rotate(16deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes hand-over { from { transform: translateX(-14px) rotate(-6deg); } to { transform: none; } }
+@keyframes pop { from { transform: scale(0.96); opacity: 0.4; } to { transform: none; opacity: 1; } }
+.bird-btn.fly-in { animation: fly-in 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.bird-btn.hand-over { animation: hand-over 420ms ease-out both; }
+.pop { animation: pop 320ms ease-out both; }
+@media (prefers-reduced-motion: reduce) { .bird-btn.fly-in, .bird-btn.hand-over, .pop { animation: none; } }
+body.still .bird-btn.fly-in, body.still .bird-btn.hand-over, body.still .pop { animation: none; }
+
+/* 말풍선: 새의 말은 본문과 구분한다 */
+.say { display: flex; gap: 12px; align-items: flex-start; }
+.bubble { flex: 1; min-width: 0; position: relative; background: var(--topic-soft); border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+.bubble-label { font-size: 0.75rem; font-weight: 800; color: var(--topic); }
+.bubble p { font-size: 0.95rem; }
+.bubble small { font-size: 0.75rem; color: var(--muted); line-height: 1.55; }
+.say-line { align-items: center; }
+.say-line .bubble { background: var(--soft); padding: 10px 14px; }
+
+/* 도착과 마무리 */
+.stage { display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; padding-block: 8px; }
+.stage h1 { font-family: var(--font-display); font-size: 1.7rem; line-height: 1.35; letter-spacing: -0.03em; }
+.stage p { color: var(--muted); font-size: 0.9rem; }
+.cards { display: flex; flex-direction: column; gap: 10px; }
+.card { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+.card .topic { font-size: 0.75rem; font-weight: 800; color: var(--topic); display: flex; justify-content: space-between; }
+.card h3 { font-size: 1.05rem; line-height: 1.45; letter-spacing: -0.02em; }
+.card .line { font-size: 0.85rem; color: var(--muted); }
+.card .num { font-size: 1.6rem; font-weight: 900; color: var(--topic); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.card[data-read="1"] .topic span:last-child::after { content: " · 읽음"; }
+.primary { min-height: 52px; border: 0; border-radius: 14px; background: var(--ink); color: var(--bg); font-weight: 800; font-size: 1rem; padding: 0 20px; }
+.quiet { min-height: 44px; border: 0; background: none; color: var(--muted); font-size: 0.85rem; text-decoration: underline; text-underline-offset: 3px; }
+
+/* 소식 */
+.meta { font-size: 0.75rem; font-weight: 800; color: var(--topic); display: flex; gap: 8px; flex-wrap: wrap; }
+.meta span + span { color: var(--muted); font-weight: 600; }
+.hook { font-family: var(--font-display); font-size: 1.9rem; line-height: 1.3; letter-spacing: -0.04em; }
+.answer { font-size: 1rem; color: var(--muted); }
+.hero-num { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 16px; }
+.hero-num strong { font-size: 2.6rem; line-height: 1.1; font-weight: 900; letter-spacing: -0.05em; color: var(--topic); font-variant-numeric: tabular-nums; }
+.hero-num span { font-size: 0.8rem; color: var(--muted); }
+.donut { --p: 18; width: 72px; height: 72px; border-radius: 50%; flex: none; background: conic-gradient(var(--topic) calc(var(--p) * 1%), var(--line) 0); display: grid; place-items: center; }
+.donut::after { content: ""; width: 48px; height: 48px; border-radius: 50%; background: var(--surface); }
+.keys { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.key { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; font-size: 0.8rem; font-weight: 700; line-height: 1.5; }
+.key b { display: block; font-size: 0.68rem; color: var(--topic); letter-spacing: 0.04em; margin-bottom: 6px; }
+.section-h { font-size: 1.15rem; letter-spacing: -0.03em; }
+.place { border: 1px dashed var(--line); border-radius: 16px; padding: 20px; background: var(--surface); color: var(--muted); font-size: 0.85rem; display: flex; flex-direction: column; gap: 12px; }
+.quiz { background: var(--navy); color: var(--on-navy); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+.quiz h3 { font-size: 1.05rem; line-height: 1.5; }
+.quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.quiz-opts button { min-height: 52px; border: 1px solid color-mix(in srgb, var(--on-navy) 30%, transparent); border-radius: 12px; background: transparent; color: inherit; font-weight: 800; font-size: 0.9rem; }
+.quiz-opts button[aria-pressed="true"] { background: var(--on-navy); color: var(--navy); }
+.quiz-fb { font-size: 0.85rem; line-height: 1.6; background: color-mix(in srgb, var(--on-navy) 12%, transparent); border-radius: 10px; padding: 10px 12px; }
+details.box { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 14px 16px; }
+details.box summary { font-weight: 800; font-size: 0.95rem; cursor: pointer; min-height: 28px; }
+details.box > div { display: flex; flex-direction: column; gap: 14px; padding-top: 12px; }
+.deep p { font-size: 1rem; line-height: 1.9; max-width: 65ch; }
+.deep h3 { font-size: 1.05rem; letter-spacing: -0.02em; }
+.kind { align-self: flex-start; font-size: 0.7rem; font-weight: 800; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 9px; }
+.note { font-size: 0.78rem; color: var(--muted); line-height: 1.6; }
+
+/* 시험 도구 */
+.tools { border: 1px solid var(--line); border-radius: 16px; background: var(--surface); padding: 16px; display: flex; flex-direction: column; gap: 14px; font-size: 0.85rem; }
+.tools h2 { font-size: 1rem; }
+.modes { display: flex; flex-wrap: wrap; gap: 8px; }
+.modes button { min-height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); font-size: 0.8rem; font-weight: 700; }
+.modes button[aria-pressed="true"] { border-color: var(--topic); background: var(--topic-soft); }
+.tools dl { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; font-variant-numeric: tabular-nums; }
+.tools dt { color: var(--muted); }
+.tools dd { margin: 0; text-align: right; font-weight: 700; }
+.tools ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; color: var(--muted); }
+.log { margin: 0; padding: 10px 12px; background: var(--soft); border-radius: 10px; font-size: 0.75rem; line-height: 1.6; max-height: 180px; overflow: auto; white-space: pre-wrap; }
+.credit { font-size: 0.72rem; color: var(--muted); line-height: 1.6; text-align: center; }
+.credit a { color: inherit; }
+@media (max-width: 380px) { .hook { font-size: 1.6rem; } .keys { grid-template-columns: 1fr; } }
+</style>
+
+<header class="bar"><div class="bar-in">
+  <div class="bar-title"><span id="bar-date">시험용 화면 · 가짜 내용</span><strong id="bar-pos">오늘의 소식</strong></div>
+  <div class="slot" data-size="sm" id="slot-dock"></div>
+  <button class="bar-btn" id="tools-btn" type="button" aria-expanded="false" aria-controls="tools">시험 도구</button>
+</div></header>
+
+<main class="wrap">
+  <section class="tools" id="tools" hidden>
+    <h2>시험 도구</h2>
+    <div class="modes" role="group" aria-label="새의 상태 바꾸기">
+      <button type="button" data-mode="normal" aria-pressed="true">새 있음</button>
+      <button type="button" data-mode="off" aria-pressed="false">새 없음</button>
+      <button type="button" data-mode="still" aria-pressed="false">움직임 줄이기</button>
+      <button type="button" data-mode="fail-asset" aria-pressed="false">불러오기 실패(그림 파일)</button>
+      <button type="button" data-mode="fail-runtime" aria-pressed="false">불러오기 실패(움직임 도구)</button>
+    </div>
+    <dl id="stats"></dl>
+    <div>
+      <strong>폰에서 봐 주실 것</strong>
+      <ol>
+        <li>도착, 소식을 열 때, 새를 누를 때, 마무리에서 새가 실제로 움직이는가</li>
+        <li>새를 누르면 바로 반응하는가. 늦다고 느껴지지 않는가</li>
+        <li>읽는 동안 새가 글을 가리거나 스스로 움직여 눈길을 끌지 않는가</li>
+        <li>"새 있음"과 "새 없음"에서 화면을 올리고 내릴 때 차이가 느껴지는가</li>
+      </ol>
+    </div>
+    <pre class="log" id="log" aria-label="기록"></pre>
+  </section>
+
+  <div id="view"></div>
+
+  <p class="credit">새 그림: "Bird" by JcToon (Rive Marketplace, CC BY). 시험용으로 쓴 기성 그림이며 우리 새의 그림이 아니다.<br>
+  <a href="https://rive.app/community/files/1750-3467-bird/" target="_blank" rel="noopener">rive.app/community/files/1750-3467-bird</a></p>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  // ── 설정 ────────────────────────────────────────────────
+  var CFG = {
+    runtime: "https://unpkg.com/@rive-app/canvas-lite@2.47.1/rive.js",
+    wasm: "rive.wasm",              // 페이지와 같은 곳에 둔 파일
+    stateMachine: "State Machine 1",
+    input: "Pressed",
+    // 그림 파일의 대지(500×500)에서 새는 아래쪽 4분의 1만 차지한다. 자리 크기별로 보여 줄 중심과 배율.
+    // 측정값: 가만히 있을 때 x 0.34~0.61, y 0.50~0.79 / 뛰어오를 때 x 0.24~0.62, y 0.18~0.79
+    crop: { lg: { cx: 0.46, cy: 0.5, zoom: 1.5 }, md: { cx: 0.46, cy: 0.5, zoom: 1.5 }, sm: { cx: 0.47, cy: 0.62, zoom: 2.2 } },
+    assetBytes: 0,
+    timeoutMs: 9000
+  };
+  var RIV_B64 = "/*RIV_B64*/";
+  var FALLBACK_SVG = '<svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="52" cy="58" rx="30" ry="26" fill="currentColor"/><circle cx="36" cy="40" r="17" fill="currentColor"/><path d="M19 40 6 45l14 4z" fill="currentColor"/><path d="M78 52c12-6 16-16 15-24-9 3-17 9-21 17z" fill="currentColor"/><circle cx="32" cy="37" r="3.2" fill="#fff"/><path d="M44 84v9m14-9v9" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>';
+
+  var $ = function (id) { return document.getElementById(id); };
+  function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; }
+  var t0 = performance.now();
+  var logLines = [];
+  function log(msg) {
+    var line = ((performance.now() - t0) / 1000).toFixed(1) + "s  " + msg;
+    logLines.push(line); if (logLines.length > 60) logLines.shift();
+    $("log").textContent = logLines.join("\n"); $("log").scrollTop = 1e6;
+    try { console.log("[bird] " + msg); } catch (e) {}
+  }
+  // 이 페이지가 열린 곳의 보안 규칙이 무언가를 막으면 그 사실을 기록에 남긴다 (게시한 곳에서 새가 안 뜰 때 원인을 보기 위해)
+  document.addEventListener("securitypolicyviolation", function (e) {
+    log("막힘: " + (e.violatedDirective || "") + " · " + String(e.blockedURI || "").slice(0, 80));
+  });
+  var stats = { mode: "새 있음", state: "아직 불러오지 않음", firstShow: null, runtimeLoad: null, runtimeSize: null, wasmSize: null, tap: null, frames: 0, slow: 0, worst: 0, fails: 0 };
+  function kb(n) { return n ? Math.round(n / 1024) + "KB" : "측정 안 됨"; }
+  function drawStats() {
+    var rows = [
+      ["지금 상태", stats.mode + " · " + stats.state],
+      ["새가 처음 보이기까지", stats.firstShow === null ? "—" : Math.round(stats.firstShow) + "ms"],
+      ["움직임 도구(스크립트) 받는 시간", stats.runtimeLoad === null ? "—" : Math.round(stats.runtimeLoad) + "ms"],
+      ["움직임 도구 크기 (전송량)", kb(stats.runtimeSize) + " + " + kb(stats.wasmSize)],
+      ["새 그림 파일 크기", kb(CFG.assetBytes)],
+      ["누른 뒤 반응이 그려지기까지", stats.tap === null ? "—" : Math.round(stats.tap) + "ms"],
+      ["화면을 움직이는 동안 그린 장면 수", String(stats.frames)],
+      ["그중 느린 장면 (33ms 초과)", stats.slow + " · 가장 느린 것 " + Math.round(stats.worst) + "ms"],
+      ["불러오기 실패 기록", stats.fails + "건"]
+    ];
+    var dl = $("stats"); dl.replaceChildren();
+    rows.forEach(function (r) { dl.append(el("dt", "", r[0]), el("dd", "", r[1])); });
+  }
+
+  // ── 새 ─────────────────────────────────────────────────
+  var Bird = (function () {
+    var btn = el("button", "bird-btn"); btn.type = "button"; btn.setAttribute("aria-label", "새. 누르면 반응해요");
+    var canvas = document.createElement("canvas");
+    var SIZES = { lg: 168, md: 88, sm: 44 };
+    var r = null, input = null, state = "none", mode = "normal", quiet = false, settleTimer = 0, slot = null, gen = 0, tapAt = 0;
+    function reduced() { return mode === "still" || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches); }
+    function setState(s, label) { state = s; stats.state = label; drawStats(); }
+
+    function fit() {
+      if (!r || !slot) return;
+      var size = SIZES[slot.dataset.size] || 44, dpr = Math.min(window.devicePixelRatio || 1, 3), crop = CFG.crop[slot.dataset.size] || CFG.crop.lg, z = crop.zoom, css = size * z;
+      canvas.style.width = canvas.style.height = css + "px";
+      canvas.style.left = (size / 2 - crop.cx * css) + "px"; canvas.style.top = (size / 2 - crop.cy * css) + "px";
+      canvas.width = canvas.height = Math.min(1000, Math.round(css * dpr));
+      try { r.resizeDrawingSurfaceToCanvas(canvas.width / css); if (typeof r.drawFrame === "function") r.drawFrame(); } catch (e) {}
+    }
+    function place(target) {
+      if (!target || mode === "off") return;
+      slot = target;
+      if (btn.parentNode !== target) target.append(btn);
+      fit();
+    }
+    function showFallback(reason) {
+      stats.fails++; log("실패: " + reason + " → 멈춘 그림으로 바꿈. 읽기는 그대로 된다");
+      if (r) { try { r.cleanup(); } catch (e) {} r = null; input = null; }
+      btn.innerHTML = FALLBACK_SVG;
+      setState("failed", "멈춘 그림 (불러오기 실패)");
+    }
+    function loadScript() {
+      return new Promise(function (ok, bad) {
+        if (mode === "fail-runtime") return bad(new Error("움직임 도구를 불러오지 못함 (일부러 낸 실패)"));
+        if (window.rive) return ok();
+        var s = document.createElement("script"), at = performance.now();
+        s.src = CFG.runtime; s.async = true;
+        s.onload = function () { stats.runtimeLoad = performance.now() - at; ok(); };
+        s.onerror = function () { bad(new Error("움직임 도구를 불러오지 못함")); };
+        document.head.append(s);
+      });
+    }
+    function bytes() {
+      var bin = atob(RIV_B64), out = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+      CFG.assetBytes = out.length;
+      return mode === "fail-asset" ? out.slice(0, 200).buffer : out.buffer;
+    }
+    function init(nextMode) {
+      mode = nextMode; var my = ++gen, started = performance.now();
+      clearTimeout(settleTimer);
+      if (r) { try { r.cleanup(); } catch (e) {} r = null; input = null; }
+      btn.replaceChildren(); btn.remove();
+      document.body.classList.toggle("still", mode === "still");
+      if (mode === "off") { setState("off", "새를 그리지 않음"); log("새 없음: 아무것도 불러오지 않는다"); return Promise.resolve(); }
+      setState("loading", "불러오는 중");
+      return loadScript().then(function () {
+        if (my !== gen) return;
+        try { window.rive.RuntimeLoader.setWasmUrl(CFG.wasm); } catch (e) {}
+        btn.append(canvas);
+        return new Promise(function (done) {
+          var finished = false;
+          var timer = setTimeout(function () { if (!finished && my === gen) { finished = true; showFallback("정해 둔 시간(" + CFG.timeoutMs / 1000 + "초) 안에 준비되지 않음"); done(); } }, CFG.timeoutMs);
+          try {
+            r = new window.rive.Rive({
+              buffer: bytes(), canvas: canvas, stateMachine: CFG.stateMachine, autoplay: !reduced(),
+              onLoad: function () {
+                if (finished || my !== gen) return; finished = true; clearTimeout(timer);
+                try { input = (r.stateMachineInputs(CFG.stateMachine) || []).filter(function (i) { return i.name === CFG.input; })[0] || null; } catch (e) { input = null; }
+                stats.firstShow = performance.now() - started;
+                setState("ready", reduced() ? "멈춘 그림 (움직임 줄이기)" : "움직임 준비됨");
+                log("새 준비됨 · " + Math.round(stats.firstShow) + "ms · 입력 " + (input ? CFG.input : "없음"));
+                fit(); sizes(); done();
+              },
+              onLoadError: function () { if (finished || my !== gen) return; finished = true; clearTimeout(timer); showFallback("새 그림 파일을 읽지 못함"); done(); },
+              onStateChange: function (e) {
+                var names = (e && e.data) || [];
+                if (quiet && names.join(" ").indexOf("Idle") >= 0) settle(600);
+              }
+            });
+          } catch (e) { if (!finished) { finished = true; clearTimeout(timer); showFallback("새 그림 파일을 읽지 못함: " + e.message); done(); } }
+        });
+      }).catch(function (e) { if (my === gen) showFallback(e.message); });
+    }
+    function sizes() {
+      try {
+        performance.getEntriesByType("resource").forEach(function (x) {
+          var n = x.transferSize || x.encodedBodySize || 0;
+          if (/rive\.js/.test(x.name)) stats.runtimeSize = n;
+          if (/\.wasm/.test(x.name)) stats.wasmSize = n;
+        });
+      } catch (e) {}
+      drawStats();
+    }
+    // 읽는 동안에는 그리기를 멈춘다. 반응이 끝나면 다시 멈춘다.
+    function settle(ms) {
+      clearTimeout(settleTimer);
+      settleTimer = setTimeout(function () { if (quiet && r) { try { r.pause(); } catch (e) {} } }, ms);
+    }
+    function react(why) {
+      if (state !== "ready" || !r) return false;
+      if (reduced()) { log(why + ": 움직임 줄이기라 움직이지 않음"); return false; }
+      try { r.play(); if (input) input.fire(); } catch (e) { log("반응 실패: " + e.message); return false; }
+      if (quiet) settle(2600);
+      return true;
+    }
+    function setQuiet(q) {
+      quiet = q; clearTimeout(settleTimer);
+      if (!r || state !== "ready" || reduced()) return;
+      try { if (q) settle(2600); else r.play(); } catch (e) {}
+    }
+    function flourish(cls) {
+      if (reduced()) return;
+      btn.classList.remove("fly-in", "hand-over"); void btn.offsetWidth; btn.classList.add(cls);
+    }
+    btn.addEventListener("pointerdown", function () {
+      tapAt = performance.now();
+      var ok = react("누름");
+      if (ok) requestAnimationFrame(function () { requestAnimationFrame(function () { stats.tap = performance.now() - tapAt; drawStats(); }); });
+      else if (state === "failed") log("누름: 멈춘 그림이라 반응 없음 (기록됨)");
+    });
+    btn.addEventListener("click", function (e) { if (e.detail === 0) react("키보드로 누름"); });
+    window.addEventListener("resize", fit);
+    return { init: init, place: place, react: react, setQuiet: setQuiet, flourish: flourish, get mode() { return mode; }, get state() { return state; }, get rive() { return r; } };
+  })();
+
+  // ── 화면을 움직이는 동안의 장면 간격 재기 (새가 있을 때와 없을 때 비교용) ──
+  (function () {
+    var last = 0, until = 0, running = false;
+    function tick(now) {
+      if (now > until) { running = false; last = 0; drawStats(); return; }
+      if (last) { var d = now - last; stats.frames++; if (d > 33) stats.slow++; if (d > stats.worst) stats.worst = d; }
+      last = now; requestAnimationFrame(tick);
+    }
+    window.addEventListener("scroll", function () { until = performance.now() + 250; if (!running) { running = true; requestAnimationFrame(tick); } }, { passive: true });
+  })();
+
+  // ── 가짜 내용 ────────────────────────────────────────────
+  var LONG = [
+    ["fact", "보도된 사실", "가람시가 내놓은 계획", "이 문단은 화면을 길게 만들기 위한 가짜 내용이다. 가람시는 다음 달부터 한빛구 세 개 동에서 밤 시간대 순환 버스를 시험 운행한다고 밝혔다. 배차 간격은 20분이고, 시험 기간은 석 달이다. 시는 이용자가 가장 많은 구간부터 정류장 안내판을 바꾸겠다고 했다."],
+    ["fact", "보도된 사실", "시험 운행에서 보려는 것", "가짜 내용이 이어진다. 시는 시험 기간에 정류장별 승하차 인원과 대기 시간을 기록해 공개하겠다고 했다. 기록은 한 달에 한 번 시 누리집에 올라온다. 이용자가 기준에 못 미치는 구간은 노선을 다시 짠다."],
+    ["concept", "개념 풀어보기", "순환 버스와 간선 버스", "순환 버스는 정해진 구역을 고리 모양으로 도는 버스다. 간선 버스가 먼 곳을 빠르게 잇는 큰길이라면, 순환 버스는 그 큰길까지 데려다주는 골목길에 가깝다. 두 버스가 만나는 정류장이 많을수록 갈아타기가 쉬워진다."],
+    ["fact", "보도된 사실", "주민 설명회에서 나온 말", "여전히 가짜 내용이다. 지난주 열린 주민 설명회에는 120명이 참석했다. 참석자들은 막차 시간을 늦춰 달라는 의견을 가장 많이 냈다고 시는 전했다. 시 담당자는 시험 운행 결과를 본 뒤 막차 시간을 정하겠다고 답했다."],
+    ["concept", "개념 풀어보기", "배차 간격이 뜻하는 것", "배차 간격은 같은 정류장에 버스가 다시 오기까지 걸리는 시간이다. 20분 간격이면 평균적으로 10분쯤 기다리게 된다. 기다리는 시간은 타고 가는 시간보다 길게 느껴지기 쉬워서, 간격을 조금만 줄여도 체감이 크게 달라진다."],
+    ["meaning", "해석과 시사점", "밤에 움직이는 사람에게", "이 문단은 해석을 흉내 낸 가짜 내용이다. 밤늦게 퇴근하는 사람에게는 집 앞까지 가는 길이 하나 더 생기는 일일 수 있다. 다만 시험 운행이어서 석 달 뒤에도 이어질지는 정해지지 않았다."],
+    ["fact", "보도된 사실", "다른 구의 사례", "화면 길이를 채우는 가짜 내용이다. 이웃한 새별구는 지난해 같은 방식의 시험 운행을 했고, 석 달 동안 하루 평균 이용자가 꾸준히 늘었다고 발표했다. 가람시는 이 사례를 참고했다고 밝혔다."],
+    ["meaning", "해석과 시사점", "남은 물음", "마지막 가짜 문단이다. 이용자가 적은 구간을 어떻게 할지, 운행 비용을 누가 낼지는 아직 답이 없다. 석 달 뒤 공개될 기록이 그 답의 실마리가 될 수 있다."]
+  ];
+  var STORIES = [
+    { topic: "생활 · 교통", hook: "밤 버스가 생기면, 집까지 몇 분 줄어들까?", answer: "가람시가 한빛구에서 밤 순환 버스를 석 달 동안 시험한다. 계속할지는 그 뒤에 정한다.", num: "20분", numLabel: "밤 순환 버스의 배차 간격", p: 33, line: "밤 순환 버스를 석 달 동안 시험해요.",
+      keys: ["다음 달부터 한빛구 세 개 동에서 시험 운행", "배차 간격 20분, 시험 기간 석 달", "이용 기록을 한 달에 한 번 공개"],
+      quiz: ["이 버스는 석 달 뒤에도 계속 다니기로 정해졌을까요?", ["정해졌다", "아직 아니다"], 1, "시험 운행이에요. 계속할지는 석 달의 기록을 본 뒤에 정한다고 했어요."], caution: "잠깐, 이건 시험 운행이에요. 석 달 뒤에도 다닐지는 아직 몰라요." },
+    { topic: "생활 · 주거", hook: "관리비 고지서, 무엇이 바뀔까?", answer: "가짜 내용이다. 달빛동의 공동주택 관리비 고지서에 항목별 쓰임새가 함께 적힌다.", num: "12개", numLabel: "고지서에 풀어 쓰는 항목 수", p: 60, line: "관리비 고지서에 쓰임새가 적혀요.",
+      keys: ["다음 분기 고지서부터 적용", "항목 12개에 쓰임새를 한 줄씩 표기", "종이와 모바일 고지서 모두 해당"],
+      quiz: ["바뀌는 것은 관리비 금액일까요?", ["금액이 바뀐다", "표기가 바뀐다"], 1, "금액이 아니라 고지서에 적는 방식이 바뀌어요."], caution: "잠깐, 관리비가 내려간다는 뜻은 아니에요." },
+    { topic: "생활 · 소비", hook: "유통기한 대신 무엇을 보게 될까?", answer: "가짜 내용이다. 솔빛마트가 자체 상품에 먹어도 되는 기한을 따로 적기 시작했다.", num: "40종", numLabel: "먼저 바뀌는 상품 수", p: 40, line: "먹어도 되는 기한을 따로 적어요.",
+      keys: ["자체 상품 40종부터 표기", "기존 표기와 석 달 동안 함께 적음", "매장 안내문으로 차이를 설명"],
+      quiz: ["새 표기가 붙으면 기존 표기는 바로 사라질까요?", ["바로 사라진다", "한동안 함께 적는다"], 1, "석 달 동안은 두 가지를 함께 적어요."], caution: "잠깐, 모든 상품이 아니라 40종부터예요." }
+  ];
+
+  // ── 화면 ───────────────────────────────────────────────
+  var view = $("view"), read = {}, at = -1, dockWatch = null, onBird = function () {};
+  function setBar(pos) { $("bar-pos").textContent = pos; }
+  function top() { window.scrollTo(0, 0); }
+
+  function arrival() {
+    at = -1; if (dockWatch) { dockWatch.disconnect(); dockWatch = null; }
+    setBar("오늘의 소식 " + STORIES.length + "편");
+    var stage = el("section", "stage"), slot = el("div", "slot"); slot.dataset.size = "lg";
+    stage.append(slot, el("h1", "", "오늘은 세 가지를 가져왔어요"), el("p", "", "골라 읽어도 되고, 처음부터 읽어도 돼요."));
+    var cards = el("div", "cards");
+    STORIES.forEach(function (s, i) {
+      var c = el("button", "card"); c.type = "button"; if (read[i]) c.dataset.read = "1";
+      var tp = el("div", "topic"); tp.append(el("span", "", s.topic), el("span", "", "0" + (i + 1)));
+      c.append(tp, el("h3", "", s.hook), el("span", "line", s.line), el("span", "num", s.num));
+      c.addEventListener("click", function () { story(i); });
+      cards.append(c);
+    });
+    var start = el("button", "primary", "처음부터 읽기"); start.type = "button"; start.addEventListener("click", function () { story(0); });
+    var stop = el("button", "quiet", "오늘은 여기까지"); stop.type = "button"; stop.addEventListener("click", closing);
+    view.replaceChildren(el("span", "fake", "화면 확인용 가짜 내용"), stage, cards, start, stop);
+    top();
+    onBird = function () {
+      Bird.setQuiet(false); Bird.place(slot); Bird.flourish("fly-in");
+      setTimeout(function () { if (at === -1) Bird.react("등장"); }, 820);
+      log("순간 1 · 등장");
+    };
+    onBird();
+  }
+
+  function story(i) {
+    at = i; var s = STORIES[i];
+    setBar((i + 1) + " / " + STORIES.length);
+    var kids = [];
+    kids.push(el("span", "fake", "화면 확인용 가짜 내용"));
+    var meta = el("div", "meta"); meta.append(el("span", "", s.topic), el("span", "", "기준 시점 2026-11-10"), el("span", "", "0" + (i + 1) + " / 0" + STORIES.length)); kids.push(meta);
+    kids.push(el("h1", "hook", s.hook), el("p", "answer", s.answer));
+    var hero = el("div", "hero-num"), donut = el("div", "donut"); donut.style.setProperty("--p", s.p);
+    var hn = el("div"); hn.append(el("strong", "", s.num), el("span", "", s.numLabel)); hn.style.display = "flex"; hn.style.flexDirection = "column";
+    hero.append(donut, hn); kids.push(hero);
+    // 순간 2 · 전달: 새가 가져온 이유를 말한다
+    var say = el("div", "say"), slot = el("div", "slot"); slot.dataset.size = "md";
+    var bubble = el("div", "bubble pop");
+    bubble.append(el("span", "bubble-label", "이 소식을 가져온 이유"), el("p", "", "화면 확인용 문장이에요. 실제로는 여기에 이 소식을 가져온 이유를 제가 말해요."), el("small", "", "근거: 내 프로필 「(프로필 항목 원문)」 · 이 소식의 사실 「(사실 한 줄)」"));
+    say.append(slot, bubble); kids.push(say);
+    var keys = el("div", "keys"); s.keys.forEach(function (k, n) { var d = el("div", "key"); d.append(el("b", "", "KEY 0" + (n + 1)), document.createTextNode(k)); keys.append(d); }); kids.push(keys);
+    kids.push(el("h2", "section-h", "직접 해 보기"));
+    var place = el("div", "place"); place.append(el("span", "", "이 자리에 조작형 설명이 들어간다 (S5a에서 따로 확인한 부분이라 여기서는 비워 둔다)."));
+    var line = el("div", "say say-line"); var lb = el("div", "bubble"); lb.append(el("p", "", s.caution)); line.append(lb); place.append(line); kids.push(place);
+    var quiz = el("section", "quiz"), opts = el("div", "quiz-opts"), fb = el("p", "quiz-fb"); fb.hidden = true;
+    quiz.append(el("h3", "", s.quiz[0]), opts, fb);
+    s.quiz[1].forEach(function (a, n) {
+      var b = el("button", "", a); b.type = "button"; b.setAttribute("aria-pressed", "false");
+      b.addEventListener("click", function () {
+        Array.prototype.forEach.call(opts.children, function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+        fb.hidden = false; fb.textContent = (n === s.quiz[2] ? "맞아요. " : "헷갈리기 쉬운 부분이에요. ") + s.quiz[3];
+        Bird.react("확인 문제에 답함");
+      });
+      opts.append(b);
+    });
+    kids.push(quiz);
+    var terms = el("details", "box"); terms.append(el("summary", "", "낯선 단어")); var td = el("div"); td.append(el("p", "note", "배차 간격: 같은 정류장에 버스가 다시 오기까지 걸리는 시간. (AI 지식으로 쓴 설명이 들어가는 자리)")); terms.append(td); kids.push(terms);
+    var deep = el("details", "box deep"); deep.open = true; deep.append(el("summary", "", "깊이 읽기")); var dd = el("div");
+    dd.append(el("p", "note", "실제 화면에서는 접혀 있다. 여기서는 긴 글을 올리고 내리며 새를 보기 위해 펼쳐 두었다."));
+    LONG.forEach(function (b) { dd.append(el("span", "kind", b[1]), el("h3", "", b[2]), el("p", "", b[3])); });
+    LONG.forEach(function (b) { dd.append(el("p", "", b[3])); });
+    deep.append(dd); kids.push(deep);
+    kids.push(el("p", "note", "출처 자리: 매체, 발행 시각, 원문 링크가 들어간다."));
+    var next = nextUnread(i);
+    var nb = el("button", "primary", next === null ? "마무리" : "다음 소식"); nb.type = "button";
+    nb.addEventListener("click", function () { read[i] = 1; if (next === null) closing(); else story(next); });
+    var back = el("button", "quiet", "오늘의 소식으로"); back.type = "button"; back.addEventListener("click", function () { read[i] = 1; arrival(); });
+    kids.push(nb, back);
+    view.replaceChildren.apply(view, kids);
+    top();
+    // 새: 말풍선 옆에 있다가, 말풍선이 화면 밖으로 나가면 위쪽 띠의 자리로 옮겨 가만히 있는다
+    var seen = true;
+    onBird = function () {
+      Bird.setQuiet(true); Bird.place(seen ? slot : $("slot-dock")); Bird.flourish("hand-over"); Bird.react("전달");
+      log("순간 2 · 전달 (소식 " + (i + 1) + ")");
+    };
+    onBird();
+    if (dockWatch) dockWatch.disconnect();
+    if ("IntersectionObserver" in window) {
+      dockWatch = new IntersectionObserver(function (es) { if (at !== i) return; seen = es[0].isIntersecting; Bird.place(seen ? slot : $("slot-dock")); }, { rootMargin: "-64px 0px 0px 0px" });
+      dockWatch.observe(say);
+    }
+  }
+  function nextUnread(i) {
+    for (var k = 1; k < STORIES.length; k++) { var n = (i + k) % STORIES.length; if (!read[n]) return n; }
+    return null;
+  }
+
+  function closing() {
+    at = 99; if (dockWatch) { dockWatch.disconnect(); dockWatch = null; }
+    setBar("다 읽었어요");
+    var stage = el("section", "stage"), slot = el("div", "slot"); slot.dataset.size = "lg";
+    var again = el("button", "quiet", "오늘 소식 다시 보기"); again.type = "button"; again.addEventListener("click", arrival);
+    stage.append(slot, el("h1", "", "오늘의 소식은 여기까지예요"), el("p", "", "더 볼 것은 없어요. 편히 쉬어요."), again);
+    view.replaceChildren(stage);
+    top();
+    onBird = function () { Bird.setQuiet(false); Bird.place(slot); Bird.react("마무리"); log("순간 4 · 마무리"); };
+    onBird();
+  }
+
+  // ── 시험 도구 ────────────────────────────────────────────
+  var MODE_LABEL = { normal: "새 있음", off: "새 없음", still: "움직임 줄이기", "fail-asset": "실패 시험(그림 파일)", "fail-runtime": "실패 시험(움직임 도구)" };
+  $("tools-btn").addEventListener("click", function () {
+    var t = $("tools"); t.hidden = !t.hidden; this.setAttribute("aria-expanded", String(!t.hidden)); if (!t.hidden) top();
+  });
+  Array.prototype.forEach.call(document.querySelectorAll(".modes button"), function (b) {
+    b.addEventListener("click", function () {
+      Array.prototype.forEach.call(document.querySelectorAll(".modes button"), function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      stats.mode = MODE_LABEL[b.dataset.mode]; stats.frames = stats.slow = stats.worst = 0; stats.firstShow = null; stats.tap = null;
+      log("상태 바꿈 → " + stats.mode);
+      Bird.init(b.dataset.mode).then(function () { onBird(); });
+    });
+  });
+
+  window.__bird = Bird; // 개발 확인용
+  function selftest() {
+    var out = el("pre"); out.id = "selftest"; document.body.append(out);
+    var c = document.querySelector(".bird-btn canvas"), ctx = c.getContext("2d", { willReadFrequently: true });
+    function look() {
+      var w = c.width, h = c.height, d = ctx.getImageData(0, 0, w, h).data, bg = [d[0], d[1], d[2]], x0 = w, y0 = h, x1 = 0, y1 = 0, hsh = 0;
+      for (var y = 0; y < h; y += 2) for (var x = 0; x < w; x += 2) { var i = (y * w + x) * 4; hsh = (hsh * 31 + d[i] + d[i + 1]) >>> 0;
+        if (Math.abs(d[i] - bg[0]) + Math.abs(d[i + 1] - bg[1]) + Math.abs(d[i + 2] - bg[2]) > 60) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; } }
+      return { h: hsh, b: [x0 / w, y0 / h, x1 / w, y1 / h] };
+    }
+    var res = { state: Bird.state, idle: {}, tap: {}, box: [1, 1, 0, 0], changes: [] };
+    function grow(b) { res.box = [Math.min(res.box[0], b[0]), Math.min(res.box[1], b[1]), Math.max(res.box[2], b[2]), Math.max(res.box[3], b[3])]; }
+    function sample(n, done) { var seen = {}, k = 0, count = 0; (function step() { var v = look(); grow(v.b); if (!seen[v.h]) { seen[v.h] = 1; count++; } if (++k < n) requestAnimationFrame(step); else done(count); })(); }
+    try { Bird.rive.on(window.rive.EventType.StateChange, function (e) { res.changes.push(e.data.join(",")); }); } catch (e) {}
+    sample(60, function (a) { res.idle = { frames: 60, distinct: a, restBox: look().b.map(function (v) { return +v.toFixed(3); }) };
+      var t = performance.now(); Bird.react("자동 확인");
+      sample(120, function (b) { res.tap = { frames: 120, distinct: b, ms: Math.round(performance.now() - t) };
+        res.box = res.box.map(function (v) { return +v.toFixed(3); });
+        out.textContent = "SELFTEST " + JSON.stringify(res); document.title = "selftest done"; }); });
+  }
+  // ── 시작: 글과 카드를 먼저 그리고, 새는 그 뒤에 불러온다 ─────────────
+  drawStats();
+  arrival();
+  var boot = function () { Bird.init("normal").then(function () { onBird(); if (location.hash === "#selftest") setTimeout(selftest, 1500); }); };
+  if ("requestIdleCallback" in window) requestIdleCallback(boot, { timeout: 600 }); else setTimeout(boot, 50);
+})();
+</script>

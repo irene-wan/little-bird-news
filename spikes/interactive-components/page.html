@@ -1,0 +1,224 @@
+<title>인터랙티브 설명 시험</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* 레이아웃: 한 손으로 읽는 한 단 본문(최대 640px). 본문은 종이 위에 그대로 두고, 조작형 설명만 면으로 띄운다. */
+:root {
+  --bg: #F3F5F9; --surface: #FFFFFF; --ink: #18202B; --muted: #5A6574; --line: #D9DEE7;
+  --accent: #3B50C4; --on-accent: #FFFFFF; --accent-soft: #E3E8FB;
+  --assume: #8A5200; --assume-soft: #FBEFD9; --ok: #1F7A4D; --bad: #B3261E;
+  --font-display: "Gowun Batang", "Noto Serif KR", "AppleMyungjo", serif;
+  --font-body: "Noto Sans KR", system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151C; --surface: #1A202A; --ink: #E8ECF3; --muted: #9BA6B6; --line: #2C3542;
+    --accent: #9AA9FF; --on-accent: #11151C; --accent-soft: #252E55;
+    --assume: #F1BF6B; --assume-soft: #3A2E17; --ok: #6FD3A0; --bad: #FF8A80; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151C; --surface: #1A202A; --ink: #E8ECF3; --muted: #9BA6B6; --line: #2C3542;
+  --accent: #9AA9FF; --on-accent: #11151C; --accent-soft: #252E55;
+  --assume: #F1BF6B; --assume-soft: #3A2E17; --ok: #6FD3A0; --bad: #FF8A80; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.75; word-break: keep-all; overflow-wrap: anywhere; }
+.page { max-width: 640px; margin-inline: auto; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 56px; }
+h1, h2, h3, h4, p, ul, ol { margin: 0; }
+h1, h2 { font-family: var(--font-display); text-wrap: balance; line-height: 1.35; }
+h1 { font-size: 1.7rem; }
+h2 { font-size: 1.45rem; }
+button { font: inherit; color: inherit; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.intro { display: flex; flex-direction: column; gap: 14px; }
+.eyebrow { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; color: var(--assume); }
+.intro ul { padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; color: var(--muted); font-size: 0.95rem; }
+
+.story { display: flex; flex-direction: column; gap: 18px; }
+.story-topic { font-size: 0.8rem; font-weight: 700; color: var(--accent); letter-spacing: 0.04em; }
+.story-meta { font-size: 0.8rem; color: var(--muted); }
+
+/* 조작형 설명 */
+.w { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 16px; display: flex; flex-direction: column; gap: 16px; touch-action: pan-y; }
+.w-head { display: flex; flex-direction: column; gap: 4px; }
+.w h3 { font-size: 1.05rem; font-weight: 700; line-height: 1.4; }
+.w h4 { font-size: 0.95rem; font-weight: 700; }
+.w-guide { font-size: 0.9rem; color: var(--muted); line-height: 1.55; }
+.w-note, .w-src { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+.w-src { border-top: 1px solid var(--line); padding-top: 10px; }
+.chip { display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; line-height: 1.5; white-space: nowrap; }
+.chip-fact { background: var(--accent-soft); color: var(--accent); }
+.chip-assumed { background: var(--assume-soft); color: var(--assume); outline: 1px dashed var(--assume); }
+.chip-custom { background: transparent; color: var(--muted); outline: 1px solid var(--line); }
+.diff { font-size: 0.85rem; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.diff-same { color: var(--muted); font-weight: 500; }
+
+.seg { display: flex; gap: 8px; flex-wrap: wrap; }
+.seg button, .mark { min-height: 44px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: transparent; cursor: pointer; font-weight: 500; }
+.seg button[aria-pressed="true"], .mark[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 700; }
+.cmp-rows { display: flex; flex-direction: column; gap: 18px; }
+.cmp-metric { display: flex; flex-direction: column; gap: 6px; }
+.cmp-metric-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.bar-row { display: grid; grid-template-columns: minmax(3.2em, auto) 1fr auto; align-items: center; gap: 8px; font-size: 0.85rem; }
+.bar-label { color: var(--muted); }
+.bar-track { height: 14px; background: var(--bg); border-radius: 7px; overflow: hidden; min-width: 0; }
+.bar-fill { display: block; height: 100%; border-radius: 7px; transition: width 0.25s ease; }
+.bar-base { background: var(--muted); opacity: 0.55; }
+.bar-sel { background: var(--accent); }
+.bar-value { font-variant-numeric: tabular-nums; font-weight: 700; min-width: 4.5em; text-align: right; }
+
+.sim-out { background: var(--bg); border-radius: 10px; padding: 14px; }
+.sim-out-item { display: flex; flex-direction: column; gap: 2px; }
+.sim-out-label { font-size: 0.85rem; color: var(--muted); }
+.sim-out-value { font-size: 2rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.sim-out-value small { font-size: 1rem; font-weight: 500; }
+.sim-controls { display: flex; flex-direction: column; gap: 20px; }
+.sim-input { display: flex; flex-direction: column; gap: 6px; }
+.sim-input-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.sim-input-head label { font-weight: 700; font-size: 0.95rem; }
+.sim-input-val { display: flex; align-items: center; gap: 8px; }
+.sim-value { font-variant-numeric: tabular-nums; font-weight: 700; }
+input[type="range"] { width: 100%; height: 44px; margin: 0; accent-color: var(--accent); touch-action: pan-y; }
+.marks { display: flex; gap: 8px; flex-wrap: wrap; }
+.mark { font-size: 0.85rem; padding: 6px 14px; }
+
+.dots { list-style: none; padding: 0; display: flex; gap: 6px; flex-wrap: wrap; }
+.dot { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: transparent; cursor: pointer; font-weight: 700; font-variant-numeric: tabular-nums; }
+.dot-done { background: var(--accent-soft); border-color: var(--accent-soft); color: var(--accent); }
+.dot-now { border: 2px solid var(--accent); color: var(--accent); }
+.dot[aria-current="step"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.proc-card { background: var(--bg); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 8px; min-height: 9.5em; }
+.proc-pos { display: flex; justify-content: space-between; gap: 8px; font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.proc-state { font-weight: 700; }
+.proc-now { color: var(--accent); }
+.proc-body { font-size: 0.95rem; line-height: 1.65; }
+.proc-figure { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.85rem; color: var(--muted); }
+.proc-figure strong { color: var(--ink); font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+.proc-nav { display: flex; gap: 8px; }
+.nav { flex: 1; min-height: 48px; border-radius: 10px; border: 1px solid var(--line); background: transparent; cursor: pointer; font-weight: 700; }
+.nav-next { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.nav:disabled { opacity: 0.35; cursor: default; }
+
+.fb-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+.fb-card { background: var(--bg); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.fb-card strong { font-size: 1.3rem; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.fb-card span { font-size: 0.8rem; color: var(--muted); line-height: 1.45; }
+.fb-list { padding-left: 1.2em; font-size: 0.9rem; display: flex; flex-direction: column; gap: 4px; }
+
+/* 시험 도구 */
+.lab { border-top: 2px solid var(--ink); padding-top: 24px; display: flex; flex-direction: column; gap: 18px; }
+.lab p { font-size: 0.9rem; color: var(--muted); line-height: 1.6; }
+.lab-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.lab-row button { min-height: 44px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--ink); background: transparent; cursor: pointer; font-weight: 700; font-size: 0.9rem; }
+.lab-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; }
+.lab-list li { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: baseline; }
+.lab-list code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.78rem; color: var(--muted); overflow-wrap: anywhere; }
+.mark-ok { color: var(--ok); font-weight: 700; }
+.mark-bad { color: var(--bad); font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .bar-fill { transition: none; } }
+</style>
+
+<main class="page">
+  <header class="intro">
+    <p class="eyebrow">시험용 페이지 · 아래 기사는 모두 지어낸 가짜 내용입니다</p>
+    <h1>인터랙티브 설명 시험</h1>
+    <p>소식 안에 들어갈 조작형 설명 세 가지(비교, 시뮬레이션, 과정)를 폰에서 직접 만져 보기 위한 페이지입니다. 읽으면서 아래를 봐 주세요.</p>
+    <ul>
+      <li>값이나 선택지를 바꾸면 결과가 바로 달라지나요?</li>
+      <li>조작하다가 화면이 엉뚱하게 스크롤되거나, 스크롤하다가 값이 바뀌지 않나요?</li>
+      <li>한 손 엄지로 누르기 편한가요?</li>
+      <li>맨 아래 "실패 시험"을 눌렀을 때 깨진 화면 대신 요약 카드가 나오나요?</li>
+    </ul>
+  </header>
+
+  <div id="stories" class="page-stories" style="display:flex;flex-direction:column;gap:56px"></div>
+
+  <section class="lab" aria-labelledby="lab-title">
+    <h2 id="lab-title">실패 시험</h2>
+    <p>조작형 설명이 잘못 만들어졌거나 화면에 그리지 못했을 때를 일부러 일으킵니다. 이때 깨진 화면이나 글자만 있는 화면이 나오면 안 되고, 사실 목록으로 그린 요약 카드가 대신 나와야 합니다.</p>
+    <div class="lab-row">
+      <button type="button" id="btn-bad-spec">틀린 수치 넣기</button>
+      <button type="button" id="btn-render-error">표시 오류 일으키기</button>
+      <button type="button" id="btn-reset">원래대로</button>
+    </div>
+    <div>
+      <h3 style="font-size:1rem">자동 점검</h3>
+      <p>지금 이 기기 화면에서 각 설명의 값을 실제로 바꿔 보고, 결과가 달라지는지와 가로로 넘치지 않는지를 확인합니다.</p>
+    </div>
+    <div class="lab-row"><button type="button" id="btn-selftest">자동 점검 실행</button></div>
+    <ul class="lab-list" id="selftest-out" aria-live="polite"></ul>
+    <div>
+      <h3 style="font-size:1rem">실패 기록</h3>
+      <p id="fail-empty">아직 기록된 실패가 없습니다.</p>
+    </div>
+    <ul class="lab-list" id="fail-out"></ul>
+  </section>
+</main>
+
+<script src="lib/validate.js"></script>
+<script src="lib/cases.js"></script>
+<script src="lib/components.js"></script>
+<script>
+(function () {
+  const cases = globalThis.S5A_CASES;
+  const S = globalThis.S5A;
+  const TYPE_LABEL = { comparison: "비교", simulation: "시뮬레이션", process: "과정" };
+  const stories = document.getElementById("stories");
+  const boxes = new Map();
+
+  for (const c of cases) {
+    const box = document.createElement("div");
+    const sec = document.createElement("article");
+    sec.className = "story";
+    const add = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; n.textContent = text; sec.append(n); return n; };
+    add("p", "story-topic", c.topic + " · " + TYPE_LABEL[c.type]);
+    add("h2", "", c.headline);
+    c.paragraphs.forEach((t) => add("p", "", t));
+    sec.append(box);
+    add("p", "", c.after);
+    add("p", "story-meta", "가짜 기사 · 실험용");
+    stories.append(sec);
+    boxes.set(c.id, box);
+  }
+
+  function mountAll(mode) {
+    for (const c of cases) {
+      let target = c;
+      if (mode === "bad-spec") {
+        target = structuredClone(c);
+        // 사실 목록과 다른 수치를 스펙에 넣는다
+        if (c.type === "comparison") target.spec.metrics[0].values[target.spec.options[1].key].v += 7;
+        else if (c.type === "simulation") target.spec.inputs.find((i) => i.default.fact).default.v += target.spec.inputs.find((i) => i.default.fact).step;
+        else target.spec.steps.find((s) => s.figure).figure.value.v += 1;
+      }
+      S.mount(boxes.get(c.id), target, { forceRenderError: mode === "render-error" });
+    }
+  }
+
+  const failOut = document.getElementById("fail-out");
+  S.onFailure((f) => {
+    document.getElementById("fail-empty").hidden = true;
+    const li = document.createElement("li");
+    const k = document.createElement("span"); k.className = "mark-bad"; k.textContent = f.kind;
+    const d = document.createElement("code"); d.textContent = f.id + " · " + f.message;
+    li.append(k, d); failOut.append(li);
+  });
+
+  document.getElementById("btn-bad-spec").addEventListener("click", () => mountAll("bad-spec"));
+  document.getElementById("btn-render-error").addEventListener("click", () => mountAll("render-error"));
+  document.getElementById("btn-reset").addEventListener("click", () => mountAll());
+  document.getElementById("btn-selftest").addEventListener("click", () => {
+    const out = document.getElementById("selftest-out");
+    out.replaceChildren();
+    for (const r of S.selfTest()) {
+      const li = document.createElement("li");
+      const k = document.createElement("span"); k.className = r.ok ? "mark-ok" : "mark-bad"; k.textContent = r.ok ? "통과" : "실패";
+      const d = document.createElement("span"); d.textContent = r.id + " · " + r.check;
+      li.append(k, d); out.append(li);
+    }
+  });
+
+  mountAll();
+})();
+</script>

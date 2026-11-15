@@ -1,0 +1,72 @@
+{
+  "note": "평가로 정할 값은 여기서 바꾼다 (NFR-M-01). 가격은 2026-11-15에 공식 요금 페이지에서 확인한 유료 단가(달러 / 100만 토큰)다.",
+  "budgetUsd": 5,
+  "storiesPerDay": 3,
+  "bigEventPages": 3,
+  "searchQueries": 14,
+  "articlesPerQuery": 20,
+  "deepCandidates": 12,
+  "articlesPerEvent": 8,
+  "weights": {
+    "relevance": 0.5,
+    "importance": 0.2,
+    "reliability": 0.2,
+    "novelty": 0.1
+  },
+  "minRelevanceForPersonal": 3,
+  "models": {
+    "screen": "gemini-3.5-flash-lite",
+    "facts": "gemini-3.8-flash",
+    "evaluate": "gemini-3.8-flash",
+    "write": "gemini-4-hydrogen",
+    "verify": "gemini-3.8-flash",
+    "interactive": "gemini-4-hydrogen",
+    "present": ["gemini-4-hydrogen", "gemini-3.5-flash-lite"],
+    "compare": [
+      "gemini-4-hydrogen",
+      "gemini-3.8-flash",
+      "gemini-3.5-flash-lite"
+    ]
+  },
+  "thinking": {
+    "gemini-3.8-flash": {
+      "thinkingLevel": "low"
+    },
+    "gemini-3.5-flash-lite": {
+      "thinkingLevel": "minimal"
+    },
+    "gemini-4-hydrogen": {
+      "thinkingLevel": "low"
+    },
+    "gemini-4-carbon": {
+      "thinkingLevel": "low"
+    }
+  },
+  "prices": {
+    "gemini-3.8-flash": {
+      "in": 0.75,
+      "out": 3.75
+    },
+    "gemini-3.5-flash-lite": {
+      "in": 0.3,
+      "out": 2.5
+    },
+    "gemini-3.1-flash-lite": {
+      "in": 0.25,
+      "out": 1.5
+    },
+    "gemini-4-hydrogen": {
+      "in": 1.5,
+      "out": 7.5
+    },
+    "gemini-4-carbon": {
+      "in": 2,
+      "out": 10
+    },
+    "default": {
+      "in": 2,
+      "out": 10
+    }
+  },
+  "searchDays": 3
+}
