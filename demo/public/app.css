@@ -76,3 +76,23 @@ input[type=range]{width:100%;height:44px;margin:0;accent-color:var(--hero-accent
 @media(prefers-reduced-motion:reduce){.bird-btn.fly-in,.bird-btn.hand-over{animation:none}}
 .navbtn,.brandtext{white-space:nowrap}
 @media(max-width:700px){#allNews{display:none}.navbtn{padding:9px 8px}.topinner{gap:10px}.brandtext{font-size:18px}}
+
+/* 날아온: 자구가 말을 거는 버튼 → 누르면 프로필 입력이 열린다 */
+.brandmark{display:block;transform:none;object-fit:contain}
+.ask-bird{display:flex;align-items:flex-end;gap:14px;width:100%;max-width:660px;margin:6px 0 26px;padding:0;border:0;background:none;color:var(--ink);text-align:left;-webkit-tap-highlight-color:transparent}
+.ask-bird img{width:70px;height:70px;flex:none;animation:jagu-hop 2.6s ease-in-out infinite;transform-origin:50% 90%}
+.ask-bubble{position:relative;flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:22px 22px 22px 6px;padding:16px 19px 14px;box-shadow:var(--shadow);font-size:15px;line-height:1.75;font-weight:700;transition:transform .2s,border-color .2s}
+.ask-bubble:before{content:"";position:absolute;left:-7px;bottom:12px;width:12px;height:12px;background:var(--surface);border-left:1px solid var(--line);border-bottom:1px solid var(--line);transform:rotate(45deg);transition:border-color .2s}
+.ask-bubble b{color:var(--accent-text);font-weight:900}
+.ask-cta{display:flex;align-items:center;gap:5px;margin-top:8px;font-size:13px;font-weight:900;color:var(--accent-text)}
+.ask-cta .icon{transition:transform .25s}
+.ask-bird[aria-expanded="true"] .ask-cta .icon{transform:rotate(180deg)}
+.ask-bird:hover .ask-bubble{transform:translateY(-2px);border-color:var(--accent)}.ask-bird:hover .ask-bubble:before{border-color:var(--accent)}
+.ask-bird:focus-visible{outline:none}.ask-bird:focus-visible .ask-bubble{outline:3px solid var(--accent);outline-offset:3px}
+.profile:not([hidden]){animation:form-open .35s ease-out both}
+.ask-bird{scroll-margin-top:96px}
+@keyframes jagu-hop{0%,70%,100%{transform:none}78%{transform:translateY(-6px) rotate(-4deg)}86%{transform:none}92%{transform:translateY(-3px)}}
+@keyframes form-open{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@media(max-width:700px){.ask-bird{gap:10px;margin-bottom:20px}.ask-bird img{width:54px;height:54px}.ask-bubble{font-size:14px;padding:14px 15px 12px}}
+@media(prefers-reduced-motion:reduce){.ask-bird img,.profile:not([hidden]){animation:none}}
+:root[data-theme="dark"] .brandmark,:root[data-theme="dark"] .ask-bird img{filter:drop-shadow(0 0 1.2px rgba(255,253,248,.75)) drop-shadow(0 0 5px rgba(255,253,248,.18))}

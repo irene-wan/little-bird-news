@@ -104,10 +104,12 @@
     { label: "개발자", job: "스타트업에서 일하는 3년 차 백엔드 개발자예요", interests: "AI, 반도체, 주식 투자, 전세", weak: "부동산 제도", avoid: "정치 공방" }
   ];
   var FIELDS = [["job", "지금 하는 일이나 상황", "한 줄이면 돼요", "user"], ["interests", "요즘 관심 있는 것", "쉼표로 여러 개", "sparkles"], ["weak", "잘 몰라서 어려운 분야", "없으면 비워 두세요", "book-open"], ["avoid", "받고 싶지 않은 주제", "없으면 비워 두세요", "shield-check"]];
-  function intro(error) {
-    var saved = store.get("profile") || {};
-    show('<div class="shell">' + hero("YOUR DAILY SIGNAL", "나를 아는 작은 새가,<br><em>소식을 물어 와요.</em>", "당신을 조금만 알려 주세요. 오늘의 뉴스에서 당신에게 맞는 세 편을 골라, 한눈에 잡히고 직접 눌러 보며 이해되는 소식으로 가져옵니다.") +
-      '<form class="workbench profile" id="profileForm"><div class="samples"><span>예시로 채우기</span>' + SAMPLES.map(function (s, i) { return '<button type="button" class="skill" data-sample="' + i + '">' + esc(s.label) + "</button>"; }).join("") + '</div><div class="fields">' +
+  // open: 처음 들어올 때는 닫아 두고, 자구의 말풍선을 누르면 연다. 다시 고치러 오거나 오류가 나면 열린 채로 둔다
+  function intro(error, open) {
+    var saved = store.get("profile") || {}; open = !!(open || error);
+    show('<div class="shell">' + hero("YOUR DAILY SIGNAL", "세상의 소식이,<br><em>내 이야기가 되도록.</em>", "뉴스는 많고, 내 시간은 소중하니까.") +
+      '<button type="button" class="ask-bird" id="askBird" aria-controls="profileForm" aria-expanded="' + open + '"><img src="bird-icon.svg" alt="오목눈이 자구"><span class="ask-bubble">당신에 대해 알려 주시겠어요?<br>온 세상을 날아다니며 당신만을 위한 소식을 물어 올 <b>‘자구’</b>예요!<span class="ask-cta">알려 주기 ' + icon("chevron-down", "icon-sm") + "</span></span></button>" +
+      '<form class="workbench profile" id="profileForm"' + (open ? "" : " hidden") + '><div class="samples"><span>예시로 채우기</span>' + SAMPLES.map(function (s, i) { return '<button type="button" class="skill" data-sample="' + i + '">' + esc(s.label) + "</button>"; }).join("") + '</div><div class="fields">' +
       FIELDS.map(function (f) { return '<div class="field"><label for="f-' + f[0] + '">' + icon(f[3], "icon-sm") + esc(f[1]) + " <small>" + esc(f[2]) + '</small></label><textarea id="f-' + f[0] + '" maxlength="300" rows="2">' + esc(saved[f[0]] || "") + "</textarea></div>"; }).join("") + "</div>" +
       (error ? '<p class="form-error" role="alert">' + esc(error) + "</p>" : "") +
       '<button type="submit" class="solidbtn big">오늘의 소식 받기 ' + icon("arrow-right", "icon-sm") + '</button><p class="form-note">적은 내용은 AI가 소식을 고르는 데만 쓰고 저장하지 않아요.' + (store.get("edition") ? ' <button type="button" class="navbtn" id="again" style="padding:4px 8px">아까 받은 소식 다시 보기</button>' : "") + "</p></form></div>", "intro");
@@ -203,7 +205,13 @@
     if (b.dataset.open !== undefined) { article(Number(b.dataset.open)); return; }
     if (b.dataset.home !== undefined || b.id === "allNews" || b.id === "home") { if (edition) overview(); else intro(); return; }
     if (b.dataset.close !== undefined) { closing(); return; }
-    if (b.dataset.profile !== undefined || b.id === "profileBtn") { intro(); return; }
+    if (b.dataset.profile !== undefined || b.id === "profileBtn") { intro(null, true); return; }
+    if (b.id === "askBird") {
+      var form = $("profileForm"), opening = form.hidden; form.hidden = !opening; b.setAttribute("aria-expanded", String(opening));
+      Bird.react();
+      if (opening) { b.scrollIntoView({ behavior: "smooth", block: "start" }); $("f-job").focus({ preventScroll: true }); }
+      return;
+    }
     if (b.id === "themeToggle") { theme = theme === "light" ? "dark" : "light"; store.set("theme", theme); setTheme(); return; }
     if (b.dataset.depth) {
       var long = b.dataset.depth === "long"; $("deepDive").hidden = !long; $("deepHint").hidden = long;
