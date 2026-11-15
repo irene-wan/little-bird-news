@@ -56,7 +56,7 @@ export const TOPICS = ["AI·기술", "일·채용", "돈·경제", "주거", "�
 
 export const screenGeneric = (candidates) => ({
   system: "너는 20대 독자를 위한 뉴스 편집자다. 후보를 빠르게 1차 선별한다. JSON만 출력한다.",
-  prompt: `후보 목록 (번호 | 제목 | 요약):\n${candidates.map((c) => `${c.cid} | ${c.title} | ${c.snippet}`).join("\n")}\n\n모든 후보에 대해 판단하라.\n- imp (0~3): 20대의 삶이나 사회에 미치는 영향의 크기.\n- explain (0~3): 숫자, 제도, 원리처럼 풀어서 설명할 거리가 있는 정도. 단순 발언 전달이나 행사 소식은 0~1.\n- skip: 정치 공방, 연예 가십, 단순 사건·사고, 스포츠 경기 결과, 기업 홍보성 보도자료, 인사·부고·날씨면 true.\n- topic: 다음 중 하나 — ${TOPICS.join(", ")}.\n\n출력: {"items":[{"cid":"C1","imp":0,"explain":0,"skip":false,"topic":""}]}`,
+  prompt: `후보 목록 (번호 | 제목 | 요약):\n${candidates.map((c) => `${c.cid} | ${c.title} | ${c.snippet}`).join("\n")}\n\n모든 후보에 대해 판단하라.\n- imp (0~3): 20대의 삶이나 사회에 미치는 영향의 크기.\n- explain (0~3): 숫자, 제도, 원리처럼 풀어서 설명할 거리가 있는 정도. 단순 발언 전달이나 행사 소식은 0~1.\n- skip: 정치 공방, 특정 인물의 의혹·수사·스캔들이 중심인 보도, 연예 가십, 단순 사건·사고, 스포츠 경기 결과, 기업 홍보성 보도자료, 인사·부고·날씨면 true.\n- topic: 다음 중 하나 — ${TOPICS.join(", ")}.\n\n출력: {"items":[{"cid":"C1","imp":0,"explain":0,"skip":false,"topic":""}]}`,
 });
 
 export const writeGeneric = (cand) => ({

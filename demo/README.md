@@ -72,8 +72,9 @@ node demo/build-pool.mjs
 | `lib/prompts.mjs` | 단계별 지시문 |
 | `lib/llm.mjs` | Gemini 호출, 비용 계산 |
 | `api/edition.js` | 요청을 받는 곳. 간단한 남용 제한 |
-| `public/index.html` | 읽기 화면과 새 |
-| `public/components.js`, `validate.js` | 조작형 설명 컴포넌트와 스펙 검증기 |
+| `public/index.html`, `app.js`, `app.css` | 읽기 화면과 새 |
+| `public/edition.css`, `icons.js` | 목표 시안에서 그대로 옮긴 스타일과 선 아이콘 |
+| `public/widgets.js`, `validate.js` | 조작형 설명 컴포넌트와 스펙 검증기 |
 | `data/pool.mjs` | 준비된 소식 (자동 생성) |
 
 ## 데모라서 줄인 것

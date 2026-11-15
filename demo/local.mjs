@@ -6,7 +6,7 @@ import { join, extname, normalize } from "node:path";
 import { DEMO } from "./lib/env.mjs";
 const { handle } = await import("./api/edition.js");
 const prepare = await import("./api/prepare.js");
-const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".json": "application/json; charset=utf-8", ".wasm": "application/wasm", ".riv": "application/octet-stream", ".svg": "image/svg+xml" };
+const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".wasm": "application/wasm", ".riv": "application/octet-stream", ".svg": "image/svg+xml" };
 const port = Number(process.env.PORT || 4175), host = process.argv.includes("--lan") ? "0.0.0.0" : "127.0.0.1";
 createServer(async (req, res) => {
   const url = new URL(req.url, "http://x");
