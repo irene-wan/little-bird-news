@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>작은 새의 소식 — 개인화 뉴스 서비스 데모</title>
+<title>작은 새의 소식</title>
 <meta name="description" content="나를 아는 작은 새가 나에게 딱 알맞은 소식을 골라 전합니다. 프로필을 적으면 오늘의 소식 세 편을 근거와 함께 가져옵니다.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700&display=swap">
 <style>
@@ -18,8 +18,14 @@
 @media (prefers-color-scheme: dark) { :root {
   --bg: #111a17; --surface: #1c2722; --ink: #eff5ee; --muted: #b0bcb5; --line: #35443b; --soft: #28382f;
   --accent: #ff9374; --accent-text: #ffc1ab; --navy: #24394a; --on-navy: #eff5ee;
-  --topic: #8ddcb6; --topic-soft: #203e33; --assume: #f1bf6b; --assume-soft: #3a2e17; --ok: #6fd3a0; --bad: #ff8a80; color-scheme: dark } }
+  --topic: #8ddcb6; --topic-soft: #203e33; --assume: #f1bf6b; --assume-soft: #3a2e17; --ok: #6fd3a0; --bad: #ff8a80; } }
 
+:root { color-scheme: light dark; }
+[data-tone="tech"] { --topic: light-dark(#3b50c4, #9aa9ff); --topic-soft: light-dark(#e6eafb, #252e55); }
+[data-tone="work"] { --topic: light-dark(#8a4fb0, #d2a8f0); --topic-soft: light-dark(#f3e9f9, #3a2a48); }
+[data-tone="money"] { --topic: light-dark(#a35a00, #f1bf6b); --topic-soft: light-dark(#fbefd9, #3a2e17); }
+[data-tone="home"] { --topic: light-dark(#c2452d, #ff9d86); --topic-soft: light-dark(#fdebe6, #46261f); }
+[data-tone="world"] { --topic: light-dark(#1f6f8b, #8fd3ea); --topic-soft: light-dark(#e4f3f8, #1d3a44); }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; overflow-x: clip; background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.65; word-break: keep-all; overflow-wrap: anywhere; }
@@ -70,7 +76,15 @@ a { color: inherit; }
 .stage h1 { font-family: var(--font-display); font-size: 1.7rem; line-height: 1.35; letter-spacing: -0.03em; }
 .stage p { color: var(--muted); font-size: 0.9rem; max-width: 34em; }
 .cards { display: flex; flex-direction: column; gap: 10px; }
-.card { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+.card { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 20px; padding: 16px; display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 4px 14px; align-items: start; }
+.card > * { grid-column: 2; }
+.card .ico { grid-column: 1; grid-row: 1 / span 4; }
+.ico { width: 56px; height: 56px; border-radius: 16px; background: var(--topic-soft); display: grid; place-items: center; font-size: 1.7rem; line-height: 1; }
+.tag { align-self: flex-start; justify-self: start; font-size: 0.72rem; font-weight: 800; color: var(--topic); background: var(--topic-soft); border-radius: 999px; padding: 2px 10px; }
+.head { display: flex; align-items: center; gap: 12px; }
+.progress { display: flex; gap: 6px; }
+.progress i { width: 28px; height: 5px; border-radius: 3px; background: var(--line); }
+.progress i[data-on="1"] { background: var(--topic); }
 .card .topic { font-size: 0.75rem; font-weight: 800; color: var(--topic); display: flex; justify-content: space-between; gap: 8px; }
 .card h3 { font-size: 1.05rem; line-height: 1.45; letter-spacing: -0.02em; }
 .card .line { font-size: 0.85rem; color: var(--muted); }
@@ -102,13 +116,15 @@ a { color: inherit; }
 .answer { font-size: 1rem; color: var(--muted); }
 .hero-num { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 16px; }
 .hero-num > div:last-child { display: flex; flex-direction: column; min-width: 0; }
+.hero-num { background: var(--topic-soft); border-color: transparent; }
 .hero-num strong { font-size: 2.3rem; line-height: 1.15; font-weight: 900; letter-spacing: -0.05em; color: var(--topic); font-variant-numeric: tabular-nums; }
 .hero-num span { font-size: 0.8rem; color: var(--muted); }
 .donut { --p: 18; width: 72px; height: 72px; border-radius: 50%; flex: none; background: conic-gradient(var(--topic) calc(var(--p) * 1%), var(--line) 0); display: grid; place-items: center; }
-.donut::after { content: ""; width: 48px; height: 48px; border-radius: 50%; background: var(--surface); }
+.donut::after { content: ""; width: 48px; height: 48px; border-radius: 50%; background: var(--topic-soft); }
 .keys { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .key { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; font-size: 0.8rem; font-weight: 700; line-height: 1.5; }
-.key b { display: block; font-size: 0.68rem; color: var(--topic); letter-spacing: 0.04em; margin-bottom: 6px; }
+.key b { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--topic); color: var(--bg); font-size: 0.8rem; margin-bottom: 8px; }
+.w-fallback .fb-list, .w-fallback .fb-card:nth-child(n+5) { display: none; }
 .section-h { font-size: 1.15rem; letter-spacing: -0.03em; }
 .quiz { background: var(--navy); color: var(--on-navy); border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
 .quiz small { font-size: 0.72rem; font-weight: 800; opacity: 0.75; letter-spacing: 0.04em; }
@@ -200,15 +216,14 @@ input[type="range"] { width: 100%; height: 44px; margin: 0; accent-color: var(--
 </head>
 <body>
 <header class="bar"><div class="bar-in">
-  <div class="bar-title"><span id="bar-date">개인화 뉴스 서비스 · 데모</span><strong id="bar-pos">작은 새의 소식</strong></div>
+  <div class="bar-title"><span id="bar-date">나를 아는 작은 새</span><strong id="bar-pos">작은 새의 소식</strong></div>
   <div class="slot" data-size="sm" id="slot-dock"></div>
   <button class="bar-btn" id="profile-btn" type="button" hidden>프로필 바꾸기</button>
 </div></header>
 
 <main class="wrap">
   <div id="view"></div>
-  <p class="credit">새 그림: "Bird" by JcToon (Rive Marketplace, CC BY) · 데모용으로 쓴 기성 그림입니다.<br>
-  소식은 국내 언론 보도를 바탕으로 AI(Gemini)가 정리했고, 문장마다 기사 원문의 근거와 대조했습니다. 원문은 각 소식 아래 출처에서 볼 수 있어요.</p>
+  <p class="credit">소식은 언론 보도를 바탕으로 정리했어요. 원문은 각 소식의 출처에서 볼 수 있어요.<br>새 그림: "Bird" by JcToon (Rive, CC BY)</p>
 </main>
 
 <script src="validate.js"></script>
@@ -284,8 +299,8 @@ input[type="range"] { width: 100%; height: 44px; margin: 0; accent-color: var(--
   function show(kids, pos, sub) {
     if (dockWatch) { dockWatch.disconnect(); dockWatch = null; }
     clearInterval(waitTimer);
-    view.replaceChildren.apply(view, kids);
-    $("bar-pos").textContent = pos; $("bar-date").textContent = sub || "개인화 뉴스 서비스 · 데모";
+    view.replaceChildren.apply(view, kids); view.dataset.tone = "";
+    $("bar-pos").textContent = pos; $("bar-date").textContent = sub || "나를 아는 작은 새";
     $("profile-btn").hidden = at === "intro" || at === "wait";
     window.scrollTo(0, 0);
   }
@@ -305,7 +320,7 @@ input[type="range"] { width: 100%; height: 44px; margin: 0; accent-color: var(--
     at = "intro";
     var saved = store.get("profile") || {};
     var stage = el("section", "stage"), slot = el("div", "slot"); slot.dataset.size = "lg";
-    stage.append(slot, el("h1", "", "당신을 조금만 알려 주세요"), el("p", "", "뉴스를 읽을 힘도 없는 날, 나를 아는 작은 새가 나에게 맞는 소식 세 편을 골라 와요. 왜 골랐는지도 근거와 함께 말해 줘요."));
+    stage.append(slot, el("h1", "", "당신을 조금만 알려 주세요"), el("p", "", "나를 아는 작은 새가 오늘의 소식 세 편을 골라 와요."));
     var form = el("form", "form"), inputs = {};
     var chips = el("div", "chips"); chips.setAttribute("role", "group"); chips.setAttribute("aria-label", "예시로 채우기");
     SAMPLES.forEach(function (s) { chips.append(btn("", "예시: " + s.label, function () { FIELDS.forEach(function (f) { inputs[f[0]].value = s[f[0]]; }); })); });
@@ -318,7 +333,7 @@ input[type="range"] { width: 100%; height: 44px; margin: 0; accent-color: var(--
     });
     if (errorText) { var err = el("p", "error", errorText); err.setAttribute("role", "alert"); form.append(err); }
     var go = el("button", "primary", "오늘의 소식 받기"); go.type = "submit"; form.append(go);
-    form.append(el("p", "note", "적은 내용은 소식을 고르는 데만 쓰고 서버에 저장하지 않아요. 고르는 동안 AI(Google Gemini)에 전달되고, 이 브라우저에만 남아요. 실명이나 연락처 같은 건 적지 않아도 돼요."));
+    form.append(el("p", "note", "적은 내용은 AI가 소식을 고르는 데만 쓰고 저장하지 않아요."));
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var p = {}; FIELDS.forEach(function (f) { p[f[0]] = inputs[f[0]].value.trim(); });
@@ -335,14 +350,14 @@ input[type="range"] { width: 100%; height: 44px; margin: 0; accent-color: var(--
   function request(profile) {
     at = "wait";
     var stage = el("section", "stage"), slot = el("div", "slot"); slot.dataset.size = "lg";
-    var steps = el("ol", "steps"), names = ["적어 주신 내용을 읽고 있어요", "오늘 준비해 둔 소식을 하나씩 대 보고 있어요", "근거가 있는 것만 세 편 고르고 있어요", "왜 가져왔는지 적고, 지어낸 말이 없는지 확인하고 있어요"];
+    var steps = el("ol", "steps"), names = ["프로필 읽는 중", "오늘의 소식 살펴보는 중", "세 편 고르는 중", "가져온 이유 적는 중"];
     names.forEach(function (n) { steps.append(el("li", "", n)); });
-    stage.append(slot, el("h1", "", "소식을 물어 오는 중이에요"), el("p", "", "20초쯤 걸려요. 기다리는 동안 새를 눌러 보세요."), steps);
+    stage.append(slot, el("h1", "", "소식을 물어 오는 중이에요"), el("p", "", "10초쯤 걸려요. 새를 눌러 보세요."), steps);
     show([stage], "고르는 중");
     onBird = function () { Bird.setQuiet(false); Bird.place(slot); Bird.react(); };
     onBird();
     var n = 0, mark = function () { Array.prototype.forEach.call(steps.children, function (li, i) { li.dataset.done = i < n ? "1" : "0"; li.dataset.on = i === n ? "1" : "0"; }); };
-    mark(); waitTimer = setInterval(function () { if (n < names.length - 1) { n++; mark(); } }, 4500);
+    mark(); waitTimer = setInterval(function () { if (n < names.length - 1) { n++; mark(); } }, 2500);
     fetch("api/edition", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(profile) })
       .then(function (res) { return res.json().then(function (j) { if (!res.ok) throw new Error(j.error || "문제가 생겼어요."); return j; }); })
       .then(function (j) { if (at !== "wait") return; edition = j; read = {}; store.set("edition", j); arrival(); })
@@ -353,55 +368,45 @@ input[type="range"] { width: 100%; height: 44px; margin: 0; accent-color: var(--
     at = "arrival";
     var S = edition.stories, personal = S.filter(function (s) { return s.personal; }).length;
     var stage = el("section", "stage"), slot = el("div", "slot"); slot.dataset.size = "lg";
-    stage.append(slot, el("h1", "", "오늘은 세 가지를 가져왔어요"), el("p", "", personal ? "그중 " + personal + "편은 적어 주신 내용과 이어져요. 골라 읽어도 되고, 처음부터 읽어도 돼요." : "적어 주신 내용과 딱 이어지는 소식은 오늘 없었어요. 억지로 잇지 않고, 알아 둘 만한 소식을 골랐어요."));
+    stage.append(slot, el("h1", "", "오늘은 세 가지를 가져왔어요"), el("p", "", personal ? "그중 " + personal + "편은 당신과 이어지는 소식이에요." : "오늘은 알아 둘 만한 소식으로 골랐어요."));
     var cards = el("div", "cards");
     S.forEach(function (s, i) {
       var c = btn("card", undefined, function () { story(i); }); if (read[i]) c.dataset.read = "1";
-      var tp = el("div", "topic"); tp.append(el("span", "", s.topic + (s.personal ? " · 나와 이어지는 소식" : " · 알아 둘 소식")), el("span", "", "0" + (i + 1)));
-      c.append(tp, el("h3", "", s.sheet.hook), el("span", "line", s.sheet.compact));
-      if (s.sheet.metric) c.append(el("span", "num", s.sheet.metric.text));
+      c.dataset.tone = tone(s);
+      c.append(el("span", "ico", ICON[s.topic] || "📰"), el("span", "tag", s.personal ? "나와 이어지는 소식" : s.topic), el("h3", "", s.sheet.hook), el("span", "line", s.sheet.compact));
+      if (s.sheet.metric && s.sheet.metric.text.length <= 12) c.append(el("span", "num", s.sheet.metric.text));
       cards.append(c);
     });
-    show([stage, cards, btn("primary", "처음부터 읽기", function () { story(0); }), processBox(), btn("quiet", "오늘은 여기까지", closing)], "오늘의 소식 " + S.length + "편", edition.date + " 기준");
+    show([stage, cards, btn("primary", "처음부터 읽기", function () { story(0); }), btn("quiet", "오늘은 여기까지", closing)], "오늘의 소식 " + S.length + "편", edition.date + " 기준");
     onBird = function () { Bird.setQuiet(false); Bird.place(slot); Bird.flourish("fly-in"); setTimeout(function () { if (at === "arrival") Bird.react(); }, 820); };
     onBird();
   }
 
-  function processBox() {
-    var p = edition.process, box = el("details", "box"), d = el("div");
-    box.append(el("summary", "", "이 세 편을 어떻게 골랐나요"));
-    d.append(el("p", "note", "오늘 뉴스 후보 " + p.candidates + "건에서 미리 추려 사실을 확인해 둔 " + p.poolSize + "편을, 적어 주신 프로필 항목 " + p.profileItems + "개와 하나씩 대 봤어요. 프로필의 특정 문장과 소식의 특정 사실이 이어질 때만 '나와 이어지는 소식'으로 골라요. 선정은 AI가 아니라 정해진 규칙이 해요."));
-    var ul = el("ul", "decisions");
-    p.decisions.forEach(function (x) { var li = el("li"); li.dataset.sel = x.selected ? "1" : "0"; li.append(el("b", "", x.title), el("span", "", x.topic + " · " + x.reason)); ul.append(li); });
-    d.append(ul, el("p", "note", "이번에 고르는 데 쓴 AI 호출 " + p.aiCalls + "번, 약 " + (p.usd * 1450).toFixed(0) + "원, " + (p.ms / 1000).toFixed(1) + "초." + (p.whyReplaced ? " 가져온 이유 " + p.whyReplaced + "건은 검증에서 걸려 정해진 문장으로 바꿨어요." : " 가져온 이유는 모두 검증을 통과했어요.")));
-    box.append(d); return box;
-  }
-
-  var KIND = { fact: "보도된 사실", background: "배경 · AI 지식", concept: "개념 풀어보기 · AI 지식", meaning: "해석" };
+  var ICON = { "AI·기술": "🤖", "일·채용": "💼", "돈·경제": "💰", "주거": "🏠", "건강": "🩺", "사회·제도": "🏛️", "국제": "🌏", "과학·환경": "🌱", "문화·여가": "🎬", "교육": "📚" };
+  var TONE = { "AI·기술": "tech", "과학·환경": "", "건강": "", "일·채용": "work", "교육": "work", "돈·경제": "money", "주거": "home", "사회·제도": "world", "국제": "world", "문화·여가": "home" };
+  function tone(s) { return TONE[s.topic] || ""; }
+  var KIND = { fact: "보도된 사실", background: "배경", concept: "개념 풀어보기", meaning: "해석" };
   function story(i) {
     at = i; var s = edition.stories[i], S = edition.stories, kids = [];
-    var meta = el("div", "meta"); meta.append(el("span", "", s.topic), el("span", "", "기준 시점 " + s.asOf), el("span", "", "0" + (i + 1) + " / 0" + S.length)); kids.push(meta);
+    var head = el("div", "head"), prog = el("div", "progress"); S.forEach(function (_, n) { var d = el("i"); d.dataset.on = n <= i ? "1" : "0"; prog.append(d); });
+    var meta = el("div", "meta"); meta.append(el("span", "", s.topic), el("span", "", s.asOf));
+    var hm = el("div"); hm.append(meta, prog); hm.style.cssText = "display:flex;flex-direction:column;gap:8px"; head.append(el("span", "ico", ICON[s.topic] || "📰"), hm); kids.push(head);
     kids.push(el("h1", "hook", s.sheet.hook), el("p", "answer", s.sheet.insight));
     // 새가 가져온 이유를 말한다. 근거가 된 내 프로필 문장과 소식의 사실을 함께 보여 준다
     var say = el("div", "say"), slot = el("div", "slot"); slot.dataset.size = "md";
     var bubble = el("div", "bubble pop");
-    bubble.append(el("span", "bubble-label", s.personal ? "이 소식을 가져온 이유" + (s.inferred ? " · 짐작이 섞여 있어요" : "") : "이 소식을 가져온 이유 · 개인 연결 없음"), el("p", "", s.why));
-    if (s.basis.length) {
-      var basis = el("div", "basis");
-      s.basis.forEach(function (b) { var row = el("span"); row.append("내가 적은 말 ", el("b", "", "「" + b.profile + "」"), " ↔ 이 소식의 사실 ", el("b", "", "「" + b.fact + "」")); basis.append(row); });
-      bubble.append(basis);
-    }
+    bubble.append(el("span", "bubble-label", "이 소식을 가져온 이유"), el("p", "", s.why));
     say.append(slot, bubble); kids.push(say);
     if (s.sheet.metric) {
       var hero = el("div", "hero-num"), m = s.sheet.metric, pct = /^\s*(\d+(?:\.\d+)?)\s*%\s*$/.exec(m.text);
       if (pct && +pct[1] <= 100) { var donut = el("div", "donut"); donut.style.setProperty("--p", pct[1]); hero.append(donut); }
       var hn = el("div"); hn.append(el("strong", "", m.text), el("span", "", m.label)); hero.append(hn); kids.push(hero);
     }
-    var keys = el("div", "keys"); s.sheet.key_facts.forEach(function (k, n) { var d = el("div", "key"); d.append(el("b", "", "KEY 0" + (n + 1)), document.createTextNode(k.text)); keys.append(d); }); kids.push(keys);
+    var keys = el("div", "keys"); s.sheet.key_facts.forEach(function (k, n) { var d = el("div", "key"); d.append(el("b", "", String(n + 1)), document.createTextNode(k.text)); keys.append(d); }); kids.push(keys);
     kids.push(el("h2", "section-h", s.widgetMode === "interactive" ? "직접 해 보기" : "한눈에 보기"));
     var wbox = el("div"); kids.push(wbox);
     try { window.S5A.mount(wbox, s.widget); } catch (e) { wbox.hidden = true; }
-    if (s.sheet.caution) { var line = el("div", "say say-line"), lb = el("div", "bubble"); lb.append(el("span", "bubble-label", "잠깐, 오해하기 쉬워요"), el("p", "", s.sheet.caution)); line.append(lb); kids.push(line); }
+    if (s.sheet.caution) { var line = el("div", "say say-line"), lb = el("div", "bubble"); lb.append(el("span", "bubble-label", "⚠️ 잠깐"), el("p", "", s.sheet.caution)); line.append(lb); kids.push(line); }
     var q = s.sheet.quiz, quiz = el("section", "quiz"), opts = el("div", "quiz-opts"), fb = el("p", "quiz-fb"); fb.hidden = true; fb.setAttribute("aria-live", "polite");
     quiz.append(el("small", "", "확인 문제"), el("h3", "", q.question), opts, fb);
     q.answers.forEach(function (a, n) {
@@ -413,19 +418,18 @@ input[type="range"] { width: 100%; height: 44px; margin: 0; accent-color: var(--
       b.setAttribute("aria-pressed", "false"); opts.append(b);
     });
     kids.push(quiz);
-    var deep = el("details", "box deep"); deep.append(el("summary", "", "깊이 읽기 · " + s.story.title)); var dd = el("div");
+    var deep = el("details", "box deep"); deep.append(el("summary", "", "📖 깊이 읽기")); var dd = el("div");
     dd.append(el("p", "", s.story.lede.text));
     s.story.blocks.forEach(function (b) { dd.append(el("span", "kind" + (b.kind === "fact" ? "" : " kind-ai"), KIND[b.kind] || b.kind)); if (b.heading) dd.append(el("h3", "", b.heading)); dd.append(el("p", "", b.sentences.map(function (x) { return x.text; }).join(" "))); });
     if (s.story.uncertainty) dd.append(el("p", "note", "아직 확실하지 않은 것: " + s.story.uncertainty));
-    dd.append(el("p", "note", "'보도된 사실'은 문장마다 기사 원문의 근거와 대조했어요. 'AI 지식'과 '해석'은 기사에 없는, AI가 보탠 설명이에요."));
     deep.append(dd); kids.push(deep);
-    if ((s.story.terms || []).length) { var terms = el("details", "box"); terms.append(el("summary", "", "낯선 단어")); var td = el("div"); s.story.terms.forEach(function (t) { var p = el("p", "note"); p.append(el("b", "", t.term + " "), t.explain); td.append(p); }); terms.append(td); kids.push(terms); }
-    var src = el("details", "box"); src.append(el("summary", "", "출처 " + s.sources.length + "건")); var sd = el("div"), ul = el("ul", "srcs");
+    if ((s.story.terms || []).length) { var terms = el("details", "box"); terms.append(el("summary", "", "💡 낯선 단어")); var td = el("div"); s.story.terms.forEach(function (t) { var p = el("p", "note"); p.append(el("b", "", t.term + " "), t.explain); td.append(p); }); terms.append(td); kids.push(terms); }
+    var src = el("details", "box"); src.append(el("summary", "", "🔗 출처 " + s.sources.length + "건")); var sd = el("div"), ul = el("ul", "srcs");
     s.sources.forEach(function (a) { var li = el("li"), link = el("a", "", a.title); link.href = a.url; link.target = "_blank"; link.rel = "noopener"; li.append(link, el("span", "", a.source + " · " + String(a.dateTime || "").slice(0, 10))); ul.append(li); });
     sd.append(ul); src.append(sd); kids.push(src);
     var next = nextUnread(i);
     kids.push(btn("primary", next === null ? "마무리" : "다음 소식", function () { read[i] = 1; if (next === null) closing(); else story(next); }), btn("quiet", "오늘의 소식으로", function () { read[i] = 1; arrival(); }));
-    show(kids, (i + 1) + " / " + S.length, edition.date + " 기준");
+    show(kids, (i + 1) + " / " + S.length, edition.date + " 기준"); view.dataset.tone = tone(s);
     // 새: 말풍선 옆에 있다가, 말풍선이 화면 밖으로 나가면 위쪽 띠의 자리로 옮겨 가만히 있는다
     var seen = true;
     onBird = function () { Bird.setQuiet(true); Bird.place(seen ? slot : $("slot-dock")); Bird.flourish("hand-over"); Bird.react(); };
@@ -440,7 +444,7 @@ input[type="range"] { width: 100%; height: 44px; margin: 0; accent-color: var(--
   function closing() {
     at = "closing";
     var stage = el("section", "stage"), slot = el("div", "slot"); slot.dataset.size = "lg";
-    stage.append(slot, el("h1", "", "오늘의 소식은 여기까지예요"), el("p", "", "더 볼 것은 없어요. 끝없이 이어지는 화면이 아니라, 세 편을 다 읽으면 끝나요. 편히 쉬어요."), btn("quiet", "오늘 소식 다시 보기", arrival), btn("quiet", "프로필을 바꿔서 다시 받아 보기", function () { intro(); }));
+    stage.append(slot, el("h1", "", "오늘의 소식은 여기까지예요"), el("p", "", "편히 쉬어요."), btn("quiet", "오늘 소식 다시 보기", arrival), btn("quiet", "프로필을 바꿔서 다시 받아 보기", function () { intro(); }));
     show([stage], "다 읽었어요", edition.date + " 기준");
     onBird = function () { Bird.setQuiet(false); Bird.place(slot); Bird.react(); };
     onBird();

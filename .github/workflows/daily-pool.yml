@@ -1,0 +1,31 @@
+# 매일 아침 그날의 뉴스로 소식을 새로 준비해 demo/data/ 에 올린다.
+# 데모 서버는 이 파일을 받아 쓰므로, 누가 언제 열어도 그날의 소식을 받는다.
+name: 오늘의 소식 준비
+on:
+  schedule:
+    - cron: "30 20 * * *"   # 한국 시간 매일 05:30
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: daily-pool
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 소식 준비
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NEWSAPI_AI_KEY: ${{ secrets.NEWSAPI_AI_KEY }}
+        run: node demo/build-pool.mjs
+      - name: 올리기
+        run: |
+          git config user.name "little-bird-bot"
+          git config user.email "little-bird-bot@users.noreply.github.com"
+          git add demo/data/pool.mjs demo/data/pool.json
+          git diff --cached --quiet || git commit -m "data: 오늘의 소식 준비 ($(TZ=Asia/Seoul date +%F))"
+          git push

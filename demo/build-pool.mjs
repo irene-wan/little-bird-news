@@ -16,7 +16,7 @@ const runId = args.find((a) => !a.startsWith("--")) || "demo-" + new Date(Date.n
 const from = (args.find((a) => a.startsWith("--from=")) || "").slice(7);
 const dir = join(DEMO, "..", "private", "runs", runId);
 mkdirSync(join(dir, "llm"), { recursive: true });
-const CFG = { bigEventPages: 3, articlesPerQuery: 20, searchDays: 3, deep: 22, perTopic: 3, articlesPerEvent: 8, poolSize: 16, budgetUsd: 2.5,
+const CFG = { bigEventPages: 3, articlesPerQuery: 20, searchDays: 3, deep: 18, perTopic: 2, articlesPerEvent: 8, poolSize: 16, budgetUsd: 2.5,
   keywords: ["AI", "반도체", "채용", "취업", "금리", "환율", "부동산", "전세", "건강", "운동", "스타트업", "기후", "교육", "게임", "영화", "여행", "주식", "물가", "연금", "청년"] };
 const ORDER = ["collect", "screen", "articles", "facts", "write", "verify", "present", "interactive"];
 const readJson = (p) => JSON.parse(readFileSync(p, "utf8"));
@@ -291,7 +291,9 @@ const calls = existsSync(join(dir, "llm-calls.jsonl")) ? readFileSync(join(dir, 
 const usd = calls.reduce((n, c) => n + c.usd, 0);
 const poolData = { builtAt: new Date().toISOString(), date: collected.dateEnd, candidates: collected.candidates.length, deep: deepRows.length, prepUsd: Math.round(usd * 1000) / 1000, stories };
 mkdirSync(join(DEMO, "data"), { recursive: true });
+if (stories.length < 6) { console.error(`준비된 소식이 ${stories.length}편뿐이라 기존 것을 그대로 둔다`); process.exit(1); }
 writeFileSync(join(DEMO, "data", "pool.mjs"), "// build-pool.mjs가 만든 파일. 손으로 고치지 않는다.\nexport default " + JSON.stringify(poolData) + ";\n");
+writeFileSync(join(DEMO, "data", "pool.json"), JSON.stringify(poolData));
 writeJson(join(dir, "summary.json"), { runId, stories: stories.length, llmUsd: usd, llmCalls: calls.length, newsTokens });
 const spendFile = join(DEMO, "..", "private", "llm-spend.json");
 if (existsSync(spendFile) && spent > 0) { const s = readJson(spendFile); s.usd += spent; s.byModel.demo = (s.byModel.demo || 0) + spent; writeJson(spendFile, s); }
