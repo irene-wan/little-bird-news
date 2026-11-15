@@ -40,28 +40,31 @@
         const max = Math.max(...all);
         const b = V.computeMetric(spec, m, base.key);
         const s = V.computeMetric(spec, m, sel.key);
-        const bar = (label, v, cls) =>
-          el("div", { class: "bar-row" }, [
-            el("span", { class: "bar-label", text: label }),
-            el("span", { class: "bar-track" }, el("span", { class: "bar-fill " + cls, style: "width:" + Math.max(2, (v / max) * 100) + "%" })),
-            el("span", { class: "bar-value", text: fmt(v) + m.unit }),
-          ]);
         const d = s - b;
+        // 비율(0~100%)은 원 그래프로, 그 밖의 수치는 세로 막대로 그린다. 글자는 수치와 이름만 남긴다
+        const isPct = m.unit === "%" && all.every((v) => v >= 0 && v <= 100);
+        const chart = el("div", { class: "vchart" }, spec.options.map((o, i) => {
+          const on = o.key === selected;
+          const mark = isPct
+            ? el("span", { class: "pie", style: "--p:" + all[i] })
+            : el("span", { class: "vbar-track" }, el("span", { class: "vbar", style: "height:" + Math.max(4, (all[i] / max) * 100) + "%" }));
+          return el("button", { type: "button", class: "vcol" + (on ? " on" : ""), "aria-pressed": String(on), onclick: () => { selected = o.key; draw(); } }, [
+            el("strong", { text: fmt(all[i]) + m.unit }), mark, el("span", { class: "vlabel", text: o.label }),
+          ]);
+        }));
         rows.append(
           el("section", { class: "cmp-metric" }, [
             el("div", { class: "cmp-metric-head" }, [
               el("h4", { text: m.label }),
-              el("span", { class: "diff" + (d === 0 ? " diff-same" : ""), text: d === 0 ? base.label + "과 같음" : base.label + "보다 " + signed(d) + m.unit }),
+              sel.key === base.key ? null : el("span", { class: "diff" + (d === 0 ? " diff-same" : ""), text: d === 0 ? base.label + "과 같음" : base.label + "보다 " + signed(d) + m.unit }),
             ]),
-            bar(base.label, b, "bar-base"),
-            bar(sel.label, s, "bar-sel"),
-            m.derived ? el("p", { class: "w-note", text: "보도된 수치로 계산한 값입니다." }) : null,
+            chart,
           ])
         );
       }
       for (const btn of seg.children) btn.setAttribute("aria-pressed", String(btn.dataset.key === selected));
     }
-    for (const o of others) seg.append(el("button", { type: "button", "data-key": o.key, text: o.label, onclick: () => { selected = o.key; draw(); } }));
+    for (const o of spec.options) seg.append(el("button", { type: "button", "data-key": o.key, text: o.label, onclick: () => { selected = o.key; draw(); } }));
     draw();
     return el("div", { class: "w w-cmp" }, [head(spec), seg, rows, sourceLine(c)]);
   }
